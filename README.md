@@ -21,7 +21,7 @@ Personal-trip-planner/
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/ArielBlinder/Personal-trip-planner.git
 cd Personal-trip-planner
 ```
 
