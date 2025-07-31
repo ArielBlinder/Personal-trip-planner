@@ -178,6 +178,7 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
             }
         );
 
+        console.log("test")
         const content = geminiRes.data.candidates[0].content.parts[0].text;
         console.log("Raw Gemini text:", content);
 
