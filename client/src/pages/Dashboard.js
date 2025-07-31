@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-routing-machine';
+import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 
 // Fix for default markers in React Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -20,6 +22,12 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const defaultCenter = [32.0853, 34.7818];
+  // const dayColors = ['#2563eb', '#33c1ff', '#33ff57', '#ff9933', '#aa00ff'];
+  const dayColors = ['#2563eb', '#ff4433', '#4bff33', '#ffff33', '#ee33ff'];
+  const mapRef = useRef(null);
+  const routeRefs = useRef([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -47,6 +55,59 @@ function Dashboard() {
     navigate('/login');
   };
 
+
+  useEffect(() => {
+    if (!tripData?.spots?.length || !mapRef.current || !tripData.daily_info?.length)
+      return;
+
+    // Add delay to ensure map is ready
+    setTimeout(() => {
+      const bounds = L.latLngBounds(tripData.spots.map(s => [s.lat, s.lng]));
+      mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+
+      // Clear all previous route controls
+      routeRefs.current.forEach(route => mapRef.current.removeControl(route));
+      routeRefs.current = [];
+
+      tripData.daily_info.forEach((day, index) => {
+        console.log(`Processing day ${index + 1}:`, day);
+        const color = dayColors[index % dayColors.length];
+        const waypoints = day.day_locations.map(location => L.latLng(location.lat, location.lng));
+        console.log(waypoints)
+
+        const control = L.Routing.control({
+          waypoints: waypoints,
+          routeWhileDragging: false,
+          draggableWaypoints: false,
+          addWaypoints: false,
+          show: false,
+          router: L.Routing.osrmv1({
+            serviceUrl: 'https://router.project-osrm.org/route/v1',
+            profile: 'foot'
+          }),
+          lineOptions: {
+            styles: [{ color: color, opacity: 0.8, weight: 4 }]
+          },
+          createMarker: function () { return null; }
+        }).addTo(mapRef.current);
+
+        control.on("routesfound", e => {
+          console.log("Route found for day", index + 1, e.routes);
+        });
+
+        routeRefs.current.push(control);
+      });
+
+      // Hide routing instructions
+      const containers = document.querySelectorAll('.leaflet-routing-container');
+      containers.forEach(container => {
+        container.style.display = 'none';
+      });
+
+    }, 500);
+  }, [tripData]);
+
+
   const generateTrip = async () => {
     if (!country.trim()) {
       setError('Please enter a country');
@@ -56,6 +117,211 @@ function Dashboard() {
     setLoading(true);
     setError('');
     setTripData(null);
+
+
+
+  //   const hiking_content_hardcoded = `
+  //   {
+  //   "name": "Ein Prat Spring Loop",
+  //   "description": "This 2-day hike explores the beautiful Ein Prat Nature Reserve in the Judean Desert. Known for its lush vegetation fed by natural springs, Ein Prat offers a refreshing escape from the arid landscape. The loop trail takes you along the stream, through caves, and past ancient ruins, providing a mix of natural beauty and historical interest. The trek covers a total of 22 kilometers, averaging 11 kilometers per day.",
+  //   "logistics": "The trek starts and ends at the Ein Prat (Wadi Qelt) Nature Reserve entrance. Access is via Route 1 (Jerusalem-Dead Sea highway). Turn north onto Road 437 towards Anatot. Follow signs to Ein Prat. A car is the most convenient way to reach the reserve. Public transportation is available to nearby settlements, but requires a walk to the reserve entrance. There is an entrance fee to the nature reserve.",
+  //   "spots_names": [
+  //     "Ein Prat Entrance",
+  //     "Monastery Overlook",
+  //     "Upper Pools",
+  //     "Cave of the Hermit",
+  //     "Lower Pools",
+  //     "Ancient Aqueduct",
+  //     "Ein Mabu'a Spring",
+  //     "Ein Prat Entrance"
+  //   ],
+  //   "spots": [
+  //     {
+  //       "name": "Ein Prat Entrance",
+  //       "lat": 31.8355,
+  //       "lng": 35.3003
+  //     },
+  //     {
+  //       "name": "Monastery Overlook",
+  //       "lat": 31.8382,
+  //       "lng": 35.3051
+  //     },
+  //     {
+  //       "name": "Upper Pools",
+  //       "lat": 31.8395,
+  //       "lng": 35.3085
+  //     },
+  //     {
+  //       "name": "Cave of the Hermit",
+  //       "lat": 31.8407,
+  //       "lng": 35.3102
+  //     },
+  //     {
+  //       "name": "Lower Pools",
+  //       "lat": 31.8375,
+  //       "lng": 35.3020
+  //     },
+  //     {
+  //       "name": "Ancient Aqueduct",
+  //       "lat": 31.8340,
+  //       "lng": 35.2955
+  //     },
+  //     {
+  //       "name": "Ein Mabu'a Spring",
+  //       "lat": 31.8320,
+  //       "lng": 35.2922
+  //     },
+  //     {
+  //       "name": "Ein Prat Entrance",
+  //       "lat": 31.8355,
+  //       "lng": 35.3003
+  //     }
+  //   ],
+  //   "daily_info": [
+  //     {
+  //       "day": 1,
+  //       "description": "Day 1 starts at the Ein Prat entrance and heads towards the Monastery Overlook, continuing to the upper pools and then through the cave of the hermit. This is the furthest point from the starting location for day 1.",
+  //       "day_locations": [
+  //         {
+  //           "name": "Ein Prat Entrance",
+  //           "lat": 31.8355,
+  //           "lng": 35.3003
+  //         },
+  //         {
+  //           "name": "Monastery Overlook",
+  //           "lat": 31.8382,
+  //           "lng": 35.3051
+  //         },
+  //         {
+  //           "name": "Upper Pools",
+  //           "lat": 31.8395,
+  //           "lng": 35.3085
+  //         },
+  //         {
+  //           "name": "Cave of the Hermit",
+  //           "lat": 31.8407,
+  //           "lng": 35.3102
+  //         }
+  //       ],
+  //       "distance_km": 11
+  //     },
+  //     {
+  //       "day": 2,
+  //       "description": "Day 2 continues from the Cave of the Hermit, and heads back to the starting location by going through the Lower Pools, the ancient aqueduct and going to the Ein Mabu'a spring before arriving back at the Ein Prat entrance.",
+  //       "day_locations": [
+  //         {
+  //           "name": "Cave of the Hermit",
+  //           "lat": 31.8407,
+  //           "lng": 35.3102
+  //         },
+  //         {
+  //           "name": "Lower Pools",
+  //           "lat": 31.8375,
+  //           "lng": 35.3020
+  //         },
+  //         {
+  //           "name": "Ancient Aqueduct",
+  //           "lat": 31.8340,
+  //           "lng": 35.2955
+  //         },
+  //         {
+  //           "name": "Ein Mabu'a Spring",
+  //           "lat": 31.8320,
+  //           "lng": 35.2922
+  //         },
+  //         {
+  //           "name": "Ein Prat Entrance",
+  //           "lat": 31.8355,
+  //           "lng": 35.3003
+  //         }
+  //       ],
+  //       "distance_km": 11
+  //     }
+  //   ],
+  //   "total_distance_km": 22,
+  //   "weather": [
+  //     {
+  //       "degrees": 28,
+  //       "description": "Sunny with a few clouds"
+  //     },
+  //     {
+  //       "degrees": 30,
+  //       "description": "Mostly sunny"
+  //     },
+  //     {
+  //       "degrees": 32,
+  //       "description": "Sunny and hot"
+  //     }
+  //   ]
+  // }
+  //    `;
+
+  // const cycling_content_hardCoded = `
+  // {
+  //   "name": "Acadia National Park Loop",
+  //   "description": "A leisurely 2-day cycling loop in Acadia National Park, Maine, showcasing the park's scenic carriage roads. This ride covers a total distance of approximately 20 kilometers, with each day ranging between 9 and 11 kilometers, ideal for relaxed exploration and enjoying the natural beauty. The mostly flat, gravel carriage roads make it suitable for various cycling levels.",
+  //   "logistics": "The trek starts and ends at the Hulls Cove Visitor Center in Acadia National Park. The park is accessible by car via Route 3. From Bar Harbor, take Route 3 north. There are also seasonal shuttle bus services available within the park. Parking is available at the Hulls Cove Visitor Center, but can fill up quickly during peak season. Bikes can be rented in Bar Harbor, or you can bring your own.",
+  //   "spots_names": [
+  //     "Hulls Cove Visitor Center",
+  //     "Eagle Lake",
+  //     "Jordan Pond",
+  //     "Bubble Rock Parking Area",
+  //     "Hulls Cove Visitor Center"
+  //   ],
+  //   "spots": [
+  //     { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 },
+  //     { "name": "Eagle Lake", "lat": 44.3715, "lng": -68.2525 },
+  //     { "name": "Jordan Pond", "lat": 44.3458, "lng": -68.2242 },
+  //     { "name": "Bubble Rock Parking Area", "lat": 44.3569, "lng": -68.2208 },
+  //     { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 }
+  //   ],
+  //   "daily_info": [
+  //     {
+  //       "day": 1,
+  //       "description": "Start at Hulls Cove Visitor Center, cycle south towards Eagle Lake on the carriage roads, enjoy the views, and take a loop around the lake before heading back towards the Visitor Center area. The path back follows the loop, not backtracking the exact same route, to discover more.",
+  //       "day_locations": [
+  //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 },
+  //         { "name": "Eagle Lake", "lat": 44.3715, "lng": -68.2525 },
+  //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 }
+  //       ],
+  //       "distance_km": 11
+  //     },
+  //     {
+  //       "day": 2,
+  //       "description": "Start near Hulls Cove (end location of day 1), cycle to Jordan Pond, loop to Bubble Rock Parking Area, and loop back to the Hulls Cove area.",
+  //       "day_locations": [
+  //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 },
+  //         { "name": "Jordan Pond", "lat": 44.3458, "lng": -68.2242 },
+  //         { "name": "Bubble Rock Parking Area", "lat": 44.3569, "lng": -68.2208 },
+  //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 }
+  //       ],
+  //       "distance_km": 9
+  //     }
+  //   ],
+  //   "total_distance_km": 20,
+  //   "weather": [
+  //     { "degrees": 22, "description": "Partly Cloudy" },
+  //     { "degrees": 23, "description": "Sunny" },
+  //     { "degrees": 24, "description": "Sunny" }
+  //   ]
+  // }
+  // `;
+
+
+
+  //   let tripDataOffline;
+  //   try {
+  //     tripDataOffline = JSON.parse(cycling_content_hardCoded);
+  //   } catch (parseError) {
+  //     console.error("JSON parse error:", parseError);
+  //   }
+
+
+  //   setTripData(tripDataOffline);
+  //   setLoading(false);
+  // };
+
+
 
     try {
       const token = localStorage.getItem('token');
@@ -82,15 +348,9 @@ function Dashboard() {
     }
   };
 
-  const getCenter = () => {
-    if (!tripData?.spots?.length) return [44.8378, 1.2847]; // Default center
-    const lats = tripData.spots.map(spot => spot.lat);
-    const lngs = tripData.spots.map(spot => spot.lng);
-    return [
-      lats.reduce((a, b) => a + b) / lats.length,
-      lngs.reduce((a, b) => a + b) / lngs.length
-    ];
-  };
+
+
+
 
   return (
     <div className="container">
@@ -154,32 +414,39 @@ function Dashboard() {
           {tripData.spots_names && (
             <p><strong>Key Spots:</strong> {tripData.spots_names.join(', ')}</p>
           )}
+          <p><strong>Weather Forcast:</strong>
+          Today: {tripData.weather[0].degrees}, {tripData.weather[0].description}; 
+          Tommorrow: {tripData.weather[1].degrees}, {tripData.weather[1].description}; 
+          In 2 days: {tripData.weather[2].degrees}, {tripData.weather[2].description}
+          </p>
+          <p><strong>Travel Plan:</strong>
+            {tripData.daily_info.length > 1 ? (
+              <ul>
+                {tripData.daily_info.map((day, index) => (
+                  <li key={index}>
+                    <storng>Day {index + 1}:</storng> {day.description} <br></br> travling distance: {day.distance_km} km.
+                    <br></br><br></br>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>
+                <strong>One day:</strong> {tripData.daily_info[0].description} <br></br> traveling distance: {tripData.daily_info[0].distance_km} km.
+              </p>
+            )}
+          </p>
         </div>
       )}
 
       {/* Map */}
       <div style={{ height: '400px', width: '100%', border: '1px solid #ddd' }}>
-        <MapContainer
-          center={getCenter()}
-          zoom={10}
-          style={{ height: '100%', width: '100%' }}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
+        <MapContainer center={defaultCenter} zoom={10} style={{ height: '100%', width: '100%' }} ref={mapRef}>
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
           {tripData?.spots?.map((spot, index) => (
             <Marker key={index} position={[spot.lat, spot.lng]}>
               <Popup>{spot.name}</Popup>
             </Marker>
           ))}
-          {tripData?.spots?.length > 1 && (
-            <Polyline
-              positions={tripData.spots.map(spot => [spot.lat, spot.lng])}
-              color="blue"
-              weight={3}
-            />
-          )}
         </MapContainer>
       </div>
     </div>
