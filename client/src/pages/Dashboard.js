@@ -69,11 +69,46 @@ function Dashboard() {
       routeRefs.current.forEach(route => mapRef.current.removeControl(route));
       routeRefs.current = [];
 
-      tripData.daily_info.forEach((day, index) => {
+      tripData.daily_info.forEach(async (day, index) => {
         console.log(`Processing day ${index + 1}:`, day);
         const color = dayColors[index % dayColors.length];
         const waypoints = day.day_locations.map(location => L.latLng(location.lat, location.lng));
+
         console.log(waypoints)
+
+        // try {
+        //   const res = await fetch("https://api.openrouteservice.org/v2/directions/foot-hiking/geojson", {
+        //     method: "POST",
+        //     headers: {
+        //       "Authorization": "your_api_key_here",
+        //       "Content-Type": "application/json"
+        //     },
+        //     body: JSON.stringify({
+        //       coordinates: coordinates,  // must be [lng, lat]
+        //       instructions: false
+        //     })
+        //   });
+
+        //   if (!res.ok) {
+        //     const errorDetails = await res.json();
+        //     throw new Error(`ORS API error: ${res.status} - ${JSON.stringify(errorDetails)}`);
+        //   }
+
+        //   const geojson = await res.json();
+
+        //   // Then render with Leaflet:
+        //   const routeLayer = L.geoJSON(geojson, {
+        //     style: { color: "blue", weight: 4, opacity: 0.8 }
+        //   }).addTo(mapRef.current);
+
+        //   routeRefs.current.push(routeLayer);
+
+        // } catch (error) {
+        //   console.error('Error fetching route:', error);
+        // }
+
+
+
 
         const control = L.Routing.control({
           waypoints: waypoints,
@@ -120,7 +155,7 @@ function Dashboard() {
 
 
 
-  //   const hiking_content_hardcoded = `
+  //   const hiking_content_hardCoded = `
   //   {
   //   "name": "Ein Prat Spring Loop",
   //   "description": "This 2-day hike explores the beautiful Ein Prat Nature Reserve in the Judean Desert. Known for its lush vegetation fed by natural springs, Ein Prat offers a refreshing escape from the arid landscape. The loop trail takes you along the stream, through caves, and past ancient ruins, providing a mix of natural beauty and historical interest. The trek covers a total of 22 kilometers, averaging 11 kilometers per day.",
@@ -256,62 +291,62 @@ function Dashboard() {
   // }
   //    `;
 
-  // const cycling_content_hardCoded = `
-  // {
-  //   "name": "Acadia National Park Loop",
-  //   "description": "A leisurely 2-day cycling loop in Acadia National Park, Maine, showcasing the park's scenic carriage roads. This ride covers a total distance of approximately 20 kilometers, with each day ranging between 9 and 11 kilometers, ideal for relaxed exploration and enjoying the natural beauty. The mostly flat, gravel carriage roads make it suitable for various cycling levels.",
-  //   "logistics": "The trek starts and ends at the Hulls Cove Visitor Center in Acadia National Park. The park is accessible by car via Route 3. From Bar Harbor, take Route 3 north. There are also seasonal shuttle bus services available within the park. Parking is available at the Hulls Cove Visitor Center, but can fill up quickly during peak season. Bikes can be rented in Bar Harbor, or you can bring your own.",
-  //   "spots_names": [
-  //     "Hulls Cove Visitor Center",
-  //     "Eagle Lake",
-  //     "Jordan Pond",
-  //     "Bubble Rock Parking Area",
-  //     "Hulls Cove Visitor Center"
-  //   ],
-  //   "spots": [
-  //     { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 },
-  //     { "name": "Eagle Lake", "lat": 44.3715, "lng": -68.2525 },
-  //     { "name": "Jordan Pond", "lat": 44.3458, "lng": -68.2242 },
-  //     { "name": "Bubble Rock Parking Area", "lat": 44.3569, "lng": -68.2208 },
-  //     { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 }
-  //   ],
-  //   "daily_info": [
-  //     {
-  //       "day": 1,
-  //       "description": "Start at Hulls Cove Visitor Center, cycle south towards Eagle Lake on the carriage roads, enjoy the views, and take a loop around the lake before heading back towards the Visitor Center area. The path back follows the loop, not backtracking the exact same route, to discover more.",
-  //       "day_locations": [
-  //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 },
-  //         { "name": "Eagle Lake", "lat": 44.3715, "lng": -68.2525 },
-  //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 }
-  //       ],
-  //       "distance_km": 11
-  //     },
-  //     {
-  //       "day": 2,
-  //       "description": "Start near Hulls Cove (end location of day 1), cycle to Jordan Pond, loop to Bubble Rock Parking Area, and loop back to the Hulls Cove area.",
-  //       "day_locations": [
-  //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 },
-  //         { "name": "Jordan Pond", "lat": 44.3458, "lng": -68.2242 },
-  //         { "name": "Bubble Rock Parking Area", "lat": 44.3569, "lng": -68.2208 },
-  //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 }
-  //       ],
-  //       "distance_km": 9
-  //     }
-  //   ],
-  //   "total_distance_km": 20,
-  //   "weather": [
-  //     { "degrees": 22, "description": "Partly Cloudy" },
-  //     { "degrees": 23, "description": "Sunny" },
-  //     { "degrees": 24, "description": "Sunny" }
-  //   ]
-  // }
-  // `;
+    // const cycling_content_hardCoded = `
+    // {
+    //   "name": "Acadia National Park Loop",
+    //   "description": "A leisurely 2-day cycling loop in Acadia National Park, Maine, showcasing the park's scenic carriage roads. This ride covers a total distance of approximately 20 kilometers, with each day ranging between 9 and 11 kilometers, ideal for relaxed exploration and enjoying the natural beauty. The mostly flat, gravel carriage roads make it suitable for various cycling levels.",
+    //   "logistics": "The trek starts and ends at the Hulls Cove Visitor Center in Acadia National Park. The park is accessible by car via Route 3. From Bar Harbor, take Route 3 north. There are also seasonal shuttle bus services available within the park. Parking is available at the Hulls Cove Visitor Center, but can fill up quickly during peak season. Bikes can be rented in Bar Harbor, or you can bring your own.",
+    //   "spots_names": [
+    //     "Hulls Cove Visitor Center",
+    //     "Eagle Lake",
+    //     "Jordan Pond",
+    //     "Bubble Rock Parking Area",
+    //     "Hulls Cove Visitor Center"
+    //   ],
+    //   "spots": [
+    //     { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 },
+    //     { "name": "Eagle Lake", "lat": 44.3715, "lng": -68.2525 },
+    //     { "name": "Jordan Pond", "lat": 44.3458, "lng": -68.2242 },
+    //     { "name": "Bubble Rock Parking Area", "lat": 44.3569, "lng": -68.2208 },
+    //     { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 }
+    //   ],
+    //   "daily_info": [
+    //     {
+    //       "day": 1,
+    //       "description": "Start at Hulls Cove Visitor Center, cycle south towards Eagle Lake on the carriage roads, enjoy the views, and take a loop around the lake before heading back towards the Visitor Center area. The path back follows the loop, not backtracking the exact same route, to discover more.",
+    //       "day_locations": [
+    //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 },
+    //         { "name": "Eagle Lake", "lat": 44.3715, "lng": -68.2525 },
+    //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 }
+    //       ],
+    //       "distance_km": 11
+    //     },
+    //     {
+    //       "day": 2,
+    //       "description": "Start near Hulls Cove (end location of day 1), cycle to Jordan Pond, loop to Bubble Rock Parking Area, and loop back to the Hulls Cove area.",
+    //       "day_locations": [
+    //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 },
+    //         { "name": "Jordan Pond", "lat": 44.3458, "lng": -68.2242 },
+    //         { "name": "Bubble Rock Parking Area", "lat": 44.3569, "lng": -68.2208 },
+    //         { "name": "Hulls Cove Visitor Center", "lat": 44.4192, "lng": -68.2733 }
+    //       ],
+    //       "distance_km": 9
+    //     }
+    //   ],
+    //   "total_distance_km": 20,
+    //   "weather": [
+    //     { "degrees": 22, "description": "Partly Cloudy" },
+    //     { "degrees": 23, "description": "Sunny" },
+    //     { "degrees": 24, "description": "Sunny" }
+    //   ]
+    // }
+    // `;
 
 
 
   //   let tripDataOffline;
   //   try {
-  //     tripDataOffline = JSON.parse(cycling_content_hardCoded);
+  //     tripDataOffline = JSON.parse(hiking_content_hardCoded);
   //   } catch (parseError) {
   //     console.error("JSON parse error:", parseError);
   //   }
@@ -415,9 +450,9 @@ function Dashboard() {
             <p><strong>Key Spots:</strong> {tripData.spots_names.join(', ')}</p>
           )}
           <p><strong>Weather Forcast:</strong>
-          Today: {tripData.weather[0].degrees}, {tripData.weather[0].description}; 
-          Tommorrow: {tripData.weather[1].degrees}, {tripData.weather[1].description}; 
-          In 2 days: {tripData.weather[2].degrees}, {tripData.weather[2].description}
+            Today: {tripData.weather[0].degrees}, {tripData.weather[0].description};
+            Tommorrow: {tripData.weather[1].degrees}, {tripData.weather[1].description};
+            In 2 days: {tripData.weather[2].degrees}, {tripData.weather[2].description}
           </p>
           <p><strong>Travel Plan:</strong>
             {tripData.daily_info.length > 1 ? (
