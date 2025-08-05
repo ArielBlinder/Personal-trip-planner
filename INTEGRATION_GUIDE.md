@@ -67,7 +67,7 @@ npm start
 5. **Load a different route** to test map updates
 6. **Delete a route** to test removal
 
-## 📁 New Files Created
+## New Files Created
 
 ```
 client/src/
@@ -81,7 +81,7 @@ client/src/
     └── Dashboard.js        # Updated with route management
 ```
 
-## 🔑 Key Features
+## Key Features
 
 ### **JWT Token Handling**
 

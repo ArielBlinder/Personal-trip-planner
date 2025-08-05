@@ -16,7 +16,7 @@ const app = express();
 const PORT = 5000;
 
 app.use(cors());
-app.use(express.json()); // allows JSON parsing in requests
+app.use(express.json()); // JSON parsing in requests
 app.use(bodyParser.json());
 
 // Secret key for signing JWTs — in real apps, put this in .env
@@ -247,7 +247,7 @@ app.post('/api/routes/save', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Route name already exists. Please choose a different name.' });
         }
 
-        // Create new route with explicit field mapping (excluding weather as per requirements)
+        // Create new route with explicit field mapping excluding weather 
         const route = new Route({
             name: routeData.name,
             description: routeData.description,
@@ -258,7 +258,7 @@ app.post('/api/routes/save', authenticateToken, async (req, res) => {
             spots: routeData.spots || [],
             daily_info: routeData.daily_info || [],
             total_distance_km: routeData.total_distance_km || 0,
-            weather: [], // Don't save weather data - it becomes outdated
+            weather: [], // don't save weather data
             userId: req.user.userId,
             userRouteName: userRouteName.trim(),
             userRouteDescription: userRouteDescription?.trim() || ''
@@ -288,7 +288,7 @@ app.post('/api/routes/save', authenticateToken, async (req, res) => {
 });
 
 // GET
-// Route: Get User's Saved Routes (Protected)
+// Route: Get Users Saved Routes 
 app.get('/api/routes', authenticateToken, async (req, res) => {
     try {
         const routes = await Route.find({ userId: req.user.userId })
@@ -303,7 +303,7 @@ app.get('/api/routes', authenticateToken, async (req, res) => {
 });
 
 // GET
-// Route: Get Specific Route Details (Protected)
+// Route: Get Specific Route Details
 app.get('/api/routes/:routeId', authenticateToken, async (req, res) => {
     try {
         const { routeId } = req.params;
@@ -325,7 +325,7 @@ app.get('/api/routes/:routeId', authenticateToken, async (req, res) => {
 });
 
 // DELETE
-// Route: Delete Saved Route (Protected)
+// Route: Delete Saved Route
 app.delete('/api/routes/:routeId', authenticateToken, async (req, res) => {
     try {
         const { routeId } = req.params;

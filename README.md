@@ -7,6 +7,7 @@ A full-stack web application that combines user authentication with AI-powered t
 - **User Authentication**: Secure registration and login with JWT tokens
 - **AI Trip Planning**: Generate hiking, cycling, and walking trips using Gemini AI
 - **Interactive Maps**: View trip routes and points of interest on a dynamic map
+- **Route Management**: Save, load, and delete your favorite routes
 - **Protected Routes**: Access control to ensure only authenticated users can plan trips
 
 ## Technology Stack
@@ -21,76 +22,230 @@ A full-stack web application that combines user authentication with AI-powered t
 ### Backend (Port 5000)
 
 - Node.js with Express
+- MongoDB with Mongoose ODM
 - JWT for authentication
 - bcrypt for password hashing
 - Google Gemini AI for trip generation
-- File-based user storage (JSON)
 
-## Setup Instructions
+## Installation & Setup
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
-- npm
-- Google Gemini API key
+Before starting, make sure you have:
 
-### 1. Clone and Setup
+- **Node.js** (v16 or higher) - [Download here](https://nodejs.org/)
+- **MongoDB Community Server** (v6.0 or higher) - [Download here](https://www.mongodb.com/try/download/community)
+- **Git** - [Download here](https://git-scm.com/downloads)
+- **Google Gemini API Key** - [Get one here](https://ai.google.dev/)
+
+### Step 1: Install MongoDB
+
+#### Windows:
+
+1. Download MongoDB Community Server from the official website
+2. Run the installer (.msi file)
+3. Choose "Complete" setup
+4. **Important**: Check "Install MongoDB as a Service" and "Run service as Network Service user"
+5. **Important**: Check "Install MongoDB Compass" (useful for database management)
+6. Complete the installation
+
+
+
+#### Verify MongoDB Installation:
 
 ```bash
-git clone <repository-url>
+# Check if MongoDB is running
+mongosh --eval "db.runCommand({ping: 1})"
+```
+
+### Step 2: Clone and Setup Project
+
+```bash
+# Clone the repository
+git clone <your-github-repository-url>
 cd Personal-trip-planner
+
+# Install server dependencies
+cd server
+npm install
+
+# Install client dependencies
+cd ../client
+npm install
+cd ..
 ```
 
-### 2. Server Setup
+### Step 3: Environment Configuration
+
+Create a `.env` file in the `server` directory:
 
 ```bash
 cd server
-npm install
 ```
 
-Create a `.env` file in the server directory:
+Create `.env` file with the following content:
 
-```
-GEMINI_API_KEY=your_actual_gemini_api_key_here
+```env
+# MongoDB Configuration
+MONGODB_URI=mongodb://localhost:27017/trip-planner
+
+# JWT Secret (change this to a random string)
+JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
+
+# Google Gemini AI API Key
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Environment
+NODE_ENV=development
 ```
 
-### 3. Client Setup
+**Important**: Replace `your_gemini_api_key_here` with your actual Gemini API key.
+
+### Step 4: Database Setup and Data Migration
+
+#### Option A: Start Fresh (Simplest)
+
+If you want to start with a clean database, simply run the server - MongoDB will create the database automatically when the first user registers.
+
+#### Option B: Migrate Existing Data
+
+If you have existing JSON backup files, you can migrate them:
+
+1. **Copy your JSON backup files** to the server directory
+2. **Rename the backup file** to `users.json`:
+   ```bash
+   cd server
+   cp users_backup_2025-08-05T08-38-34-649Z.json users.json
+   ```
+3. **Run the migration**:
+   ```bash
+   npm run migrate
+   ```
+
+#### Option C: Import from Another MongoDB Database
+
+If you have an existing MongoDB database:
+
+**From your original computer:**
 
 ```bash
-cd client
-npm install
+# Export users collection
+mongodump --db trip-planner --collection users --out backup
+
+# Export routes collection (if it exists)
+mongodump --db trip-planner --collection routes --out backup
 ```
 
-### 4. Running the Application
+**On the new computer:**
 
-**Start the Server (Terminal 1):**
+```bash
+# Import the data
+mongorestore backup
+```
+
+### Step 5: Verify Setup (Optional)
+
+Run the setup checker to verify everything is configured correctly:
+
+```bash
+node setup-check.js
+```
+
+This will check:
+
+-  Node.js installation and version
+-  npm availability
+-  MongoDB connection
+-  Project dependencies
+-  Environment configuration
+
+### Step 6: Start the Application
+
+Open **two terminal windows/tabs**:
+
+**Terminal 1 - Start the Backend Server:**
 
 ```bash
 cd server
-npm start
+npm run dev
 ```
 
-Server will run on http://localhost:5000
+You should see:
 
-**Start the Client (Terminal 2):**
+```
+Server running on port 5000
+MongoDB Connected: localhost:27017
+```
+
+**Terminal 2 - Start the Frontend Client:**
 
 ```bash
 cd client
 npm start
 ```
 
-Client will run on http://localhost:3000
+The React application will open in your browser at `http://localhost:3000`
 
-## Usage
+## How to Use the Application
 
-1. **Registration**: Create a new account with username, email, and password
-2. **Login**: Sign in with your credentials
-3. **Trip Planning**:
-   - Enter a country name
-   - Select trip type (hiking, cycling, walking)
-   - Click "Generate Trip" to get AI-powered suggestions
-4. **Map Interaction**: View generated routes and points of interest on the interactive map
-5. **Logout**: Securely log out when finished
+### Getting Started
+
+1. **Register/Login**:
+
+   - **New users**: Click "Register" and create an account with username, email, and password
+   - **Existing users**: Click "Login" and enter your credentials
+
+2. **Plan a Trip**:
+
+   - Enter a country or location you want to visit
+   - Select trip type: 🥾 Hiking, 🚴 Cycling, or 🚶 Walking
+   - Click "Generate Trip" for AI-powered suggestions
+
+3. **Explore Your Route**:
+
+   - View the interactive map with route markers
+   - See distances, estimated times, and descriptions
+   - Discover points of interest along your route
+
+4. **Save Your Trip**:
+   - Click "Save This Route" to open the save dialog
+   - Add a route name (required) and description (optional)
+   - Click "Save Route" to store it in your account
+
+### Managing Saved Routes
+
+- **View All Routes**: Navigate to the "Saved Routes" section
+- **Load a Route**: Click "Load" to display a saved route on the map
+- **Delete a Route**: Click "Delete" to permanently remove a route
+
+### Tips for Best Experience
+
+- **Be Specific**: Include region names (e.g., "Swiss Alps" vs. "Switzerland")
+- **Try Different Types**: Same location offers different experiences for hiking/cycling/walking
+- **Save Variations**: Save multiple route options for the same destination
+
+## Data Export and Backup
+
+### Export Your Current Data
+
+To backup your routes and user data (useful for migrating to another computer):
+
+```bash
+cd server
+npm run export-data
+```
+
+This creates a timestamped backup folder with:
+
+- `users_export.json` - User accounts and authentication data
+- `routes_export.json` - Saved trip routes and plans
+- `README.md` - Instructions for restoring the data
+
+### Import Data on New Installation
+
+1. Copy the exported JSON files to your new server directory
+2. Rename `users_export.json` to `users.json`
+3. Run: `npm run migrate`
 
 ## API Endpoints
 
@@ -98,69 +253,118 @@ Client will run on http://localhost:3000
 
 - `POST /register` - Create new user account
 - `POST /login` - User login
-- `GET /protected` - Verify authentication status
 
 ### Trip Planning
 
-- `POST /api/generate-route` - Generate trip suggestions (Protected)
-
-## File Structure
-
-```
-Personal-trip-planner/
-├── server/
-│   ├── index.js          # Main server file
-│   ├── package.json      # Server dependencies
-│   ├── users.json        # User data storage
-│   └── .env             # Environment variables
-├── client/
-│   ├── src/
-│   │   ├── App.js       # Main React component
-│   │   ├── pages/
-│   │   │   ├── Login.js     # Login page
-│   │   │   ├── Register.js  # Registration page
-│   │   │   └── Dashboard.js # Trip planner dashboard
-│   │   └── ...
-│   └── package.json     # Client dependencies
-└── README.md
-```
-
-## Security Features
-
-- Password hashing with bcrypt
-- JWT token-based authentication
-- Protected API routes
-- Client-side route protection
-
-## Trip Generation
-
-The application uses Google's Gemini AI to generate personalized trip suggestions based on:
-
-- Country/location preference
-- Trip type (hiking, cycling, walking)
-- Distance requirements (5-15 km round trips)
-
-Generated trips include:
-
-- Trip name and description
-- Logistics and access information
-- GPS coordinates for key spots
-- Interactive map visualization
-
-## Development Notes
-
-- The server uses file-based storage for simplicity (users.json)
-- In production, consider migrating to a proper database
-- Ensure the Gemini API key is kept secure and not committed to version control
-- The application includes CORS configuration for local development
+- `POST /generate-trip` - Generate AI-powered trip suggestions
+- `GET /routes` - Get user's saved routes
+- `POST /routes` - Save a new route
+- `DELETE /routes/:id` - Delete a saved route
 
 ## Troubleshooting
 
-1. **Server won't start**: Check if port 5000 is available
-2. **Client won't start**: Check if port 3000 is available
-3. **Trip generation fails**: Verify your Gemini API key is correct
-4. **Map not displaying**: Ensure leaflet CSS is loaded properly
+### MongoDB Connection Issues
 
-## License
+- **Error**: "MongoNetworkError: connect ECONNREFUSED"
+  - **Solution**: Make sure MongoDB service is running
+  - **Windows**: Open Services, find "MongoDB Server", ensure it's running
 
-This project is for educational purposes.
+
+### Port Already in Use
+
+- **Error**: "EADDRINUSE: address already in use :::5000"
+  - **Solution**: Kill the process using the port
+  ```bash
+  # Find the process
+  netstat -ano | findstr :5000  # Windows
+  ```
+
+### Missing API Key
+
+- **Error**: API requests failing
+  - **Solution**: Make sure your Gemini API key is correctly set in the `.env` file
+
+### Trip Generation Failed
+
+- Check your internet connection
+- Verify the Gemini API key is configured correctly
+- Try a different destination or be more specific
+
+### Map Not Loading
+
+- Check your internet connection
+- Try refreshing the page
+- Ensure JavaScript is enabled in your browser
+
+### Login Issues
+
+- Verify your email and password are correct
+- Check if Caps Lock is on
+- Try registering again if you forgot your details
+
+
+## Security Notes
+
+1. **Change the JWT_SECRET** in production
+2. **Keep your .env file secret** - never commit it to Git
+3. **Use environment-specific configurations** for different deployments
+4. **Regularly backup your database**
+
+## Database Structure
+
+Your MongoDB database will contain:
+
+- **users** collection: User accounts with authentication
+- **routes** collection: Saved trip routes and plans
+
+## Project Structure
+
+```
+Personal-trip-planner/
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   ├── pages/         # Page components
+│   │   └── utils/         # API utilities
+│   └── package.json
+├── server/                # Node.js backend
+│   ├── config/           # Database configuration
+│   ├── models/           # MongoDB models
+│   ├── export-data.js    # Data export script
+│   ├── migrate.js        # Data migration script
+│   └── package.json
+├── setup-check.js        # Setup verification script
+└── README.md            # This file
+```
+
+## Scripts Available
+
+### Server Scripts
+
+- `npm start` - Start production server
+- `npm run dev` - Start development server with auto-reload
+- `npm run migrate` - Migrate JSON data to MongoDB
+- `npm run export-data` - Export current data to JSON files
+
+### Client Scripts
+
+- `npm start` - Start development client
+- `npm run build` - Build for production
+- `npm test` - Run tests
+
+
+Once everything is set up:
+
+-  Users can register and login
+-  Generate AI-powered trip plans
+-  Save and manage routes
+-  View trips on interactive maps
+
+The application will be available at:
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000
+
+Enjoy.
+
+---
