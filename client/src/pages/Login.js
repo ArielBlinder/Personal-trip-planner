@@ -18,8 +18,10 @@ function Login() {
     const data = await res.json();
     if (data.token) {
       localStorage.setItem('token', data.token);
+      // Store user info as well
+      localStorage.setItem('user', JSON.stringify(data.user));
       const user = jwtDecode(data.token);
-      setMessage(`Welcome ${user.name}`);
+      setMessage(`Welcome ${user.username}`);
       navigate('/dashboard');
     } else {
       setMessage(data.message || 'Login failed');

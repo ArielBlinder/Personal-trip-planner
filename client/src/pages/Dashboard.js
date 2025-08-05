@@ -1,10 +1,13 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+import SaveRouteModal from '../components/SaveRouteModal';
+import SavedRoutesList from '../components/SavedRoutesList';
+import { authAPI } from '../utils/api';
 
 // Fix for default markers in React Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -21,38 +24,86 @@ function Dashboard() {
   const [tripData, setTripData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [savedRoutesRefresh, setSavedRoutesRefresh] = useState(0);
+  const [isLoadedRoute, setIsLoadedRoute] = useState(false); // Track if route is loaded from saved routes
   const navigate = useNavigate();
 
   const defaultCenter = [32.0853, 34.7818];
-  // const dayColors = ['#2563eb', '#33c1ff', '#33ff57', '#ff9933', '#aa00ff'];
-  const dayColors = ['#2563eb', '#ff4433', '#4bff33', '#ffff33', '#ee33ff'];
   const mapRef = useRef(null);
   const routeRefs = useRef([]);
 
+  // Stabilize dayColors to prevent unnecessary re-renders
+  const dayColors = useCallback(() => 
+    ['#2563eb', '#ff4433', '#4bff33', '#ffff33', '#ee33ff'], []
+  );
+
   useEffect(() => {
     const fetchUserData = async () => {
-      const token = localStorage.getItem('token');
       try {
-        const res = await fetch('http://localhost:5000/protected', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setUser(data.message);
-        } else {
-          navigate('/login');
-        }
+        const data = await authAPI.getProtectedData();
+        setUser(data.message);
       } catch (err) {
         navigate('/login');
       }
     };
 
     fetchUserData();
+
+    // Cleanup function for component unmount
+    return () => {
+      // Copy map ref to avoid stale reference warning
+      const currentMap = mapRef.current;
+      
+      // Clear all route controls when component unmounts
+      try {
+        routeRefs.current.forEach(route => {
+          try {
+            if (route && currentMap && currentMap.hasLayer && currentMap.hasLayer(route)) {
+              currentMap.removeControl(route);
+            }
+          } catch (error) {
+            console.warn('Error removing route control on unmount:', error);
+          }
+        });
+        routeRefs.current = [];
+      } catch (error) {
+        console.warn('Error during component cleanup:', error);
+      }
+    };
   }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     navigate('/login');
+  };
+
+  const handleSaveSuccess = (routeId) => {
+    alert('Route saved successfully!');
+    // Refresh the saved routes list
+    setSavedRoutesRefresh(prev => prev + 1);
+  };
+
+  const handleLoadRoute = (routeData) => {
+    // Clear existing routes before loading new one
+    try {
+      routeRefs.current.forEach(route => {
+        try {
+          if (route && mapRef.current && mapRef.current.hasLayer && mapRef.current.hasLayer(route)) {
+            mapRef.current.removeControl(route);
+          }
+        } catch (error) {
+          console.warn('Error removing route control during load:', error);
+        }
+      });
+      routeRefs.current = [];
+    } catch (error) {
+      console.warn('Error clearing routes:', error);
+    }
+
+    setTripData(routeData);
+    setIsLoadedRoute(true); // This is a loaded route, don't show save button
   };
 
 
@@ -61,22 +112,33 @@ function Dashboard() {
       return;
 
     // Add delay to ensure map is ready
-    setTimeout(() => {
-      const bounds = L.latLngBounds(tripData.spots.map(s => [s.lat, s.lng]));
-      mapRef.current.fitBounds(bounds, { padding: [50, 50] });
 
-      // Clear all previous route controls
-      routeRefs.current.forEach(route => mapRef.current.removeControl(route));
-      routeRefs.current = [];
+    const timeoutId = setTimeout(() => {
+      try {
+        if (!mapRef.current) return; // Double-check map is still available
 
-      tripData.daily_info.forEach(async (day, index) => {
-        console.log(`Processing day ${index + 1}:`, day);
-        const color = dayColors[index % dayColors.length];
-        const waypoints = day.day_locations.map(location => L.latLng(location.lat, location.lng));
+        const bounds = L.latLngBounds(tripData.spots.map(s => [s.lat, s.lng]));
+        mapRef.current.fitBounds(bounds, { padding: [50, 50] });
 
-        console.log(waypoints)
+        // Clear all previous route controls safely
+        routeRefs.current.forEach(route => {
+          try {
+            if (route && mapRef.current && mapRef.current.hasLayer && mapRef.current.hasLayer(route)) {
+              mapRef.current.removeControl(route);
+            }
+          } catch (error) {
+            console.warn('Error removing route control:', error);
+          }
+        });
+        routeRefs.current = [];
 
-        // try {
+        tripData.daily_info.forEach((day, index) => {
+          if (!day.day_locations || day.day_locations.length === 0) return;
+          
+          const color = dayColors()[index % dayColors().length];
+          const waypoints = day.day_locations.map(location => L.latLng(location.lat, location.lng));
+          
+           // try {
         //   const res = await fetch("https://api.openrouteservice.org/v2/directions/foot-hiking/geojson", {
         //     method: "POST",
         //     headers: {
@@ -106,41 +168,64 @@ function Dashboard() {
         // } catch (error) {
         //   console.error('Error fetching route:', error);
         // }
+          
+          try {
+            const control = L.Routing.control({
+              waypoints: waypoints,
+              routeWhileDragging: false,
+              draggableWaypoints: false,
+              addWaypoints: false,
+              show: false,
+              router: L.Routing.osrmv1({
+                serviceUrl: 'https://router.project-osrm.org/route/v1',
+                profile: 'foot'
+              }),
+              lineOptions: {
+                styles: [{ color: color, opacity: 0.8, weight: 4 }]
+              },
+              createMarker: function () { return null; }
+            });
 
+            if (mapRef.current) {
+              control.addTo(mapRef.current);
+              
+              control.on("routesfound", e => {
+                // Route successfully found for this day
+              });
 
+              control.on("routingerror", e => {
+                console.warn("Routing error for day", index + 1, e);
+              });
 
-
-        const control = L.Routing.control({
-          waypoints: waypoints,
-          routeWhileDragging: false,
-          draggableWaypoints: false,
-          addWaypoints: false,
-          show: false,
-          router: L.Routing.osrmv1({
-            serviceUrl: 'https://router.project-osrm.org/route/v1',
-            profile: 'foot'
-          }),
-          lineOptions: {
-            styles: [{ color: color, opacity: 0.8, weight: 4 }]
-          },
-          createMarker: function () { return null; }
-        }).addTo(mapRef.current);
-
-        control.on("routesfound", e => {
-          console.log("Route found for day", index + 1, e.routes);
+              routeRefs.current.push(control);
+            }
+          } catch (error) {
+            console.error(`Error creating route control for day ${index + 1}:`, error);
+          }
         });
 
-        routeRefs.current.push(control);
-      });
+        // Hide routing instructions
+        setTimeout(() => {
+          const containers = document.querySelectorAll('.leaflet-routing-container');
+          containers.forEach(container => {
+            try {
+              container.style.display = 'none';
+            } catch (error) {
+              console.warn('Error hiding routing container:', error);
+            }
+          });
+        }, 100);
 
-      // Hide routing instructions
-      const containers = document.querySelectorAll('.leaflet-routing-container');
-      containers.forEach(container => {
-        container.style.display = 'none';
-      });
-
+      } catch (error) {
+        console.error('Error in map rendering:', error);
+      }
     }, 500);
-  }, [tripData]);
+
+    // Cleanup function
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [tripData, dayColors]);
 
 
   const generateTrip = async () => {
@@ -359,25 +444,17 @@ function Dashboard() {
 
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/generate-route', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ country, type }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setTripData(data);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || 'Failed to generate trip');
-      }
+      const data = await authAPI.generateRoute(country, type);
+      // Add the input parameters to the trip data for saving
+      const enhancedData = {
+        ...data,
+        country: country.trim(),
+        type: type
+      };
+      setTripData(enhancedData);
+      setIsLoadedRoute(false); // This is a newly generated route
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError(err.message || 'Failed to generate trip');
     } finally {
       setLoading(false);
     }
@@ -440,6 +517,12 @@ function Dashboard() {
         {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
       </div>
 
+      {/* Saved Routes */}
+      <SavedRoutesList 
+        onLoadRoute={handleLoadRoute} 
+        refreshTrigger={savedRoutesRefresh}
+      />
+
       {/* Trip Details */}
       {tripData && (
         <div style={{ marginBottom: '20px' }}>
@@ -449,11 +532,15 @@ function Dashboard() {
           {tripData.spots_names && (
             <p><strong>Key Spots:</strong> {tripData.spots_names.join(', ')}</p>
           )}
-          <p><strong>Weather Forcast:</strong>
-            Today: {tripData.weather[0].degrees}, {tripData.weather[0].description};
-            Tommorrow: {tripData.weather[1].degrees}, {tripData.weather[1].description};
-            In 2 days: {tripData.weather[2].degrees}, {tripData.weather[2].description}
-          </p>
+
+          {tripData.weather && tripData.weather.length > 0 && (
+            <p><strong>Weather Forecast:</strong>
+            Today: {tripData.weather[0].degrees}°, {tripData.weather[0].description}; 
+            Tomorrow: {tripData.weather[1].degrees}°, {tripData.weather[1].description}; 
+            In 2 days: {tripData.weather[2].degrees}°, {tripData.weather[2].description}
+            </p>
+          )}
+
           <p><strong>Travel Plan:</strong>
             {tripData.daily_info.length > 1 ? (
               <ul>
@@ -470,6 +557,40 @@ function Dashboard() {
               </p>
             )}
           </p>
+
+          {/* Save Route Button - Only show for newly generated routes */}
+          {!isLoadedRoute && (
+            <div style={{ marginTop: '15px' }}>
+              <button
+                onClick={() => setShowSaveModal(true)}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                💾 Save This Route
+              </button>
+            </div>
+          )}
+          
+          {/* Show indication for loaded routes */}
+          {isLoadedRoute && (
+            <div style={{ 
+              marginTop: '15px', 
+              padding: '10px', 
+              backgroundColor: '#e7f3ff', 
+              borderRadius: '5px',
+              fontSize: '14px',
+              color: '#0066cc'
+            }}>
+               This is a saved route loaded from your collection
+            </div>
+          )}
         </div>
       )}
 
@@ -484,6 +605,14 @@ function Dashboard() {
           ))}
         </MapContainer>
       </div>
+
+      {/* Save Route Modal */}
+      <SaveRouteModal
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        tripData={tripData}
+        onSaveSuccess={handleSaveSuccess}
+      />
     </div>
   );
 }
