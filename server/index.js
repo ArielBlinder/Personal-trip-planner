@@ -128,11 +128,13 @@ app.get('/protected', authenticateToken, (req, res) => {
 app.post("/api/generate-route", authenticateToken, async (req, res) => {
     const { country, type } = req.body;
 
+
     const hiking_criteria = `The trek must be a **round trip**: it starts and ends at the same location.
     The total distance per day should be between 5 and 15 kilometers.
     The trek can be one day or multiple days, but each day must be within this range.`
 
     const cycling_criteria = `the cycling trek must be 2 days from city to city.
+
     The maximum distance per day is 60 kilometers.`
 
     const prompt = `give my a ${type} trip in ${country} that meets **all** the following criteria:
