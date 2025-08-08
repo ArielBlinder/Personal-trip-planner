@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const cors = require('cors');
 const express = require('express');
 const bcrypt = require('bcrypt');
@@ -8,7 +10,6 @@ const connectDB = require('./config/database');
 const User = require('./models/User');
 const Route = require('./models/Route');
 const weatherService = require('./services/weatherService');
-require("dotenv").config();
 
 // Connect to MongoDB
 connectDB();
