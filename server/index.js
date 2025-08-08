@@ -7,6 +7,7 @@ const axios = require('axios');
 const connectDB = require('./config/database');
 const User = require('./models/User');
 const Route = require('./models/Route');
+const weatherService = require('./services/weatherService');
 require("dotenv").config();
 
 // Connect to MongoDB
@@ -19,8 +20,8 @@ app.use(cors());
 app.use(express.json()); // JSON parsing in requests
 app.use(bodyParser.json());
 
-// Secret key for signing JWTs — in real apps, put this in .env
-const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key'; // change this in production
+// Secret key for signing JWTs in real apps, put this in .env
+const JWT_SECRET = process.env.JWT_SECRET; // 
 
 // POST
 // Route: Register
@@ -142,6 +143,8 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
     Include the following in your response:
     - Total distance of the entire trek.
     - General information about the trek.
+    - A list of all **spots in order of visit for the whole trek**.
+    - The coordinates of the spots must be accurate for use in openstreetmap.org 
     - For each day:
     - A description of the day, including where it starts and ends, and where to sleep if the trek is multiple days.
     - A list of spots visited in order of visit including spot of sleep.
@@ -218,6 +221,19 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
         } catch (parseError) {
             console.error("JSON parse error:", parseError);
             return res.status(500).json({ error: "Failed to parse Gemini JSON response" });
+        }
+
+        // Replace LLM weather with real weather forecast
+        if (tripData.spots && tripData.spots.length > 0) {
+            const startLocation = tripData.spots[0];
+            try {
+                const realWeather = await weatherService.getThreeDayForecast(startLocation.lat, startLocation.lng);
+                tripData.weather = realWeather;
+                console.log("Updated trip data with real weather");
+            } catch (weatherError) {
+                console.warn("Failed to fetch real weather, keeping LLM weather:", weatherError.message);
+                // Keep the LLM weather as fallback
+            }
         }
 
         console.log("Parsed trip data:", tripData);
@@ -345,6 +361,38 @@ app.delete('/api/routes/:routeId', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Delete route error:', error);
         res.status(500).json({ message: 'Failed to delete route' });
+    }
+});
+
+// GET
+// Route: Get Weather Forecast (Protected)
+app.get('/api/weather', authenticateToken, async (req, res) => {
+    try {
+        const { lat, lng } = req.query;
+        
+        if (!lat || !lng) {
+            return res.status(400).json({ message: 'Latitude and longitude are required' });
+        }
+
+        const latitude = parseFloat(lat);
+        const longitude = parseFloat(lng);
+
+        if (isNaN(latitude) || isNaN(longitude)) {
+            return res.status(400).json({ message: 'Invalid latitude or longitude' });
+        }
+
+        const weatherForecast = await weatherService.getThreeDayForecast(latitude, longitude);
+        
+        res.json({
+            location: { lat: latitude, lng: longitude },
+            forecast: weatherForecast
+        });
+    } catch (error) {
+        console.error('Weather API error:', error);
+        res.status(500).json({ 
+            message: 'Failed to fetch weather data',
+            forecast: weatherService.getFallbackWeather()
+        });
     }
 });
 

@@ -92,7 +92,11 @@ function SavedRoutesList({ onLoadRoute, refreshTrigger }) {
                   <div style={{ fontSize: '12px', color: '#888' }}>
                     <span>{route.country} • {route.type} • {route.total_distance_km}km</span>
                     <br />
-                    <span>Saved: {new Date(route.createdAt).toLocaleDateString()}</span>
+                    <span>Saved: {new Date(route.createdAt).toLocaleDateString('en-GB', {
+                       day: '2-digit',
+                        month: '2-digit',
+                       year: 'numeric'
+                     })}</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '5px', marginLeft: '10px' }}>

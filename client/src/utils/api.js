@@ -89,3 +89,14 @@ export const authAPI = {
     return handleResponse(response);
   }
 };
+
+// Weather API calls
+export const weatherAPI = {
+  // Get 3-day weather forecast
+  getThreeDayForecast: async (lat, lng) => {
+    const response = await fetch(`${BASE_URL}/api/weather?lat=${lat}&lng=${lng}`, {
+      headers: getAuthHeaders()
+    });
+    return handleResponse(response);
+  }
+};

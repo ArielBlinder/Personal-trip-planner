@@ -25,7 +25,7 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
       });
 
       const response = await routeAPI.saveRoute(tripData, routeName.trim(), routeDescription.trim());
-      console.log('✅ Route saved successfully:', response);
+      console.log('Route saved successfully:', response);
       onSaveSuccess && onSaveSuccess(response.routeId);
       onClose();
       // Reset form
