@@ -17,7 +17,7 @@ function App() {
           path="/dashboard"
           element={token ? <Dashboard /> : <Navigate to="/login" />}
         />
-        <Route path="saved-routes" element={<SavedRoutes/>}/>
+        <Route path="/saved-routes" element={<SavedRoutes/>}/>
       </Routes>
     </Router>
   );

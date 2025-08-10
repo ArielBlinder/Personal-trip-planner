@@ -89,7 +89,6 @@ const routeSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  weather: [weatherSchema],
   // User provided name and description for saved route
   userRouteName: {
     type: String,

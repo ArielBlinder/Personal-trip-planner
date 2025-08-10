@@ -4,6 +4,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+import WeatherDisplay from './WeatherDisplay';
+import { weatherAPI } from '../utils/api';
 
 // Fix for default markers in React Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -18,6 +20,8 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
   const mapRef = useRef(null);
   const routeRefs = useRef([]);
   const [mapReady, setMapReady] = useState(false);
+  const [currentWeather, setCurrentWeather] = useState(null);
+  const [loadingWeather, setLoadingWeather] = useState(false);
 
   const dayColors = useCallback(() =>
     ['#2563eb', '#ff4433', '#4bff33', '#ffff33', '#ee33ff'], []
@@ -27,6 +31,41 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
   const handleMapReady = useCallback(() => {
     setMapReady(true);
   }, []);
+
+  // Fetch weather for loaded routes
+  const fetchWeatherForRoute = useCallback(async (routeData) => {
+    if (!routeData?.spots?.length || !isLoadedRoute) {
+      return;
+    }
+
+    setLoadingWeather(true);
+    try {
+      const startLocation = routeData.spots[0];
+      const weatherData = await weatherAPI.getThreeDayForecast(startLocation.lat, startLocation.lng);
+      setCurrentWeather(weatherData.forecast);
+    } catch (err) {
+      console.error('Failed to fetch weather for loaded route:', err);
+      setCurrentWeather(null);
+    } finally {
+      setLoadingWeather(false);
+    }
+  }, [isLoadedRoute]);
+
+  // Refresh weather manually
+  const handleRefreshWeather = useCallback(async () => {
+    if (tripData?.spots?.length) {
+      setLoadingWeather(true);
+      try {
+        const startLocation = tripData.spots[0];
+        const weatherData = await weatherAPI.getThreeDayForecast(startLocation.lat, startLocation.lng);
+        setCurrentWeather(weatherData.forecast);
+      } catch (err) {
+        console.error('Failed to refresh weather:', err);
+      } finally {
+        setLoadingWeather(false);
+      }
+    }
+  }, [tripData]);
 
 
   useEffect(() => {
@@ -100,7 +139,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
               show: false,
               router: L.Routing.osrmv1({
                 serviceUrl: 'https://router.project-osrm.org/route/v1',
-                profile: 'foot'
+                profile: tripData.type === 'cycling' ? 'cycling' : 'walking'
               }),
               lineOptions: {
                 styles: [{ color: color, opacity: 0.8, weight: 4 }]
@@ -160,6 +199,13 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
     };
   }, [tripData, dayColors, mapReady]);
 
+  // Auto-fetch weather for loaded routes
+  useEffect(() => {
+    if (tripData && isLoadedRoute) {
+      fetchWeatherForRoute(tripData);
+    }
+  }, [tripData, isLoadedRoute, fetchWeatherForRoute]);
+
 
   return (
     <div className='trip-container'>
@@ -173,20 +219,20 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
             <p><strong>Key Spots:</strong> {tripData.spots_names.join(', ')}</p>
           )}
 
-          {tripData.weather && tripData.weather.length > 0 && (
-            <p><strong>Weather Forecast:</strong>
-              Today: {tripData.weather[0].degrees}°, {tripData.weather[0].description};
-              Tomorrow: {tripData.weather[1].degrees}°, {tripData.weather[1].description};
-              In 2 days: {tripData.weather[2].degrees}°, {tripData.weather[2].description}
-            </p>
-          )}
+          {/* Weather Display Component */}
+          <WeatherDisplay 
+            weatherData={currentWeather || tripData.weather}
+            isLoading={loadingWeather}
+            isForSavedRoute={isLoadedRoute}
+            onRefresh={isLoadedRoute ? handleRefreshWeather : null}
+          />
 
           <p><strong>Travel Plan:</strong>
             {tripData.daily_info.length > 1 ? (
               <ul>
                 {tripData.daily_info.map((day, index) => (
                   <li key={index}>
-                    <storng>Day {index + 1}:</storng> {day.description} <br></br> travling distance: {day.distance_km} km.
+                    <strong>Day {index + 1}:</strong> {day.description} <br></br> traveling distance: {day.distance_km} km.
                     <br></br><br></br>
                   </li>
                 ))}

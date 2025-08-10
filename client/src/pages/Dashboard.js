@@ -35,15 +35,7 @@ function Dashboard() {
     };
 
     fetchUserData();
-
-
-    // Cleanup function for component unmount
-    return () => {
-      if (mapRef.current) {
-        cleanup(mapRef.current);
-      }
-    };
-  }, [navigate, cleanup]);
+  }, [navigate]);
 
 
   const handleLogout = () => {
@@ -70,7 +62,6 @@ function Dashboard() {
     setLoading(true);
     setError('');
     setTripData(null);
-    setCurrentWeather(null);
 
     try {
       const data = await authAPI.generateRoute(country, type);
@@ -122,7 +113,7 @@ function Dashboard() {
 
       
 
-      <button onClick={handleShowSavedRoutes} className="back-btn" style={{ marginBottom: '20px' }}>go to saved routes</button>
+      <button onClick={handleShowSavedRoutes} className="back-btn" style={{ marginBottom: '20px' }}>Go To Saved Routes</button>
 
       {tripData && (
 

@@ -145,13 +145,15 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
     - Total distance of the entire trek.
     - General information about the trek.
     - A list of all **spots in order of visit for the whole trek**.
-    - The coordinates of the spots must be accurate for use in openstreetmap.org 
+    - The coordinates of the spots must be accurate, extract the lat and lng from the name of the spot from GOOGLE MAPS
+    - CRITICAL: Provide coordinates with AT LEAST 8 decimal places for maximum precision (e.g., 44.12345678, 1.56789012)
+    - Coordinates must correspond to actual trail waypoints, trailheads, viewpoints, or specific landmarks in openstreetmap.org
     - For each day:
     - A description of the day, including where it starts and ends, and where to sleep if the trek is multiple days.
     - A list of spots visited in order of visit including spot of sleep.
     - A main list of all **spots in order of visit for the whole trek**.
     - Practical logistics: how to access the trek, how to get there, and where it begins.
-    - Weather: show the weather in the trek location for the next 3 days  
+
 
     
     Return the response as a JSON object with the following fields:
@@ -161,17 +163,17 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
         "logistics": "practical info: starting point, access, transport",
         "spots_names": ["Place1", "Place2", ...],
         "spots": [
-        { "name": "Place1", "lat": 44.1234, "lng": 1.5678 },
-        { "name": "Place2", "lat": 44.4567, "lng": 1.7890 }
+        { "name": "Place1", "lat": 44.12345678, "lng": 1.56789012 },
+        { "name": "Place2", "lat": 44.45670543, "lng": 1.78905234 }
         ],
         "daily_info": [
             {
                 "day": 1,
                 "description": "Short description of this day's hike, where it starts and ends",
                 "day_locations": [
-                { "name": "Place1", "lat": 44.1234, "lng": 1.5678 },
-                { "name": "Place2", "lat": 44.4567, "lng": 1.7890 },
-                { "name": "Place3", "lat": 44.4567, "lng": 1.7890 }
+                { "name": "Place1", "lat": 44.12345678, "lng": 1.56789012 },
+                { "name": "Place2", "lat": 44.45670543, "lng": 1.78905234 },
+                { "name": "Place3", "lat": 44.45671678, "lng": 1.78902345 }
                 ],
                 "distance_km": 12
             },
@@ -179,19 +181,15 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
                 "day": 2,
                 "description": "Short description of this day's hike, where it starts and ends",
                 "day_locations": [
-                { "name": "Place4", "lat": 44.1234, "lng": 1.5678 },
-                { "name": "Place5", "lat": 44.4567, "lng": 1.7890 },
-                { "name": "Place6", "lat": 44.4567, "lng": 1.7890 }
+                { "name": "Place4", "lat": 44.12345678, "lng": 1.56789012 },
+                { "name": "Place5", "lat": 44.45670543, "lng": 1.78905234 },
+                { "name": "Place6", "lat": 44.45671678, "lng": 1.78902345 }
                 ], 
                 "distance_km": 9
             }
         ],
         "total_distance_km": 21,
-        "weather": [
-            {"degrees": 30, "description": sunny},
-            {"degrees": 30, "description": sunny},
-            {"degrees": 30, "description": sunny},
-        ]
+        
     }
 
 
