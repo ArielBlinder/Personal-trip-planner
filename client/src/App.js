@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import SavedRoutes from './pages/SavedRoutes';
 
 function App() {
   const token = localStorage.getItem('token');
@@ -16,6 +17,7 @@ function App() {
           path="/dashboard"
           element={token ? <Dashboard /> : <Navigate to="/login" />}
         />
+        <Route path="saved-routes" element={<SavedRoutes/>}/>
       </Routes>
     </Router>
   );
