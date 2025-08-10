@@ -39,6 +39,18 @@ const weatherSchema = new mongoose.Schema({
   description: {
     type: String,
     required: true
+  },
+  date: {
+    type: String,
+    required: false
+  },
+  humidity: {
+    type: Number,
+    required: false
+  },
+  windSpeed: {
+    type: Number,
+    required: false
   }
 });
 

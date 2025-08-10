@@ -49,8 +49,6 @@ Before starting, make sure you have:
 5. **Important**: Check "Install MongoDB Compass" (useful for database management)
 6. Complete the installation
 
-
-
 #### Verify MongoDB Installation:
 
 ```bash
@@ -95,11 +93,17 @@ JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
 # Google Gemini AI API Key
 GEMINI_API_KEY=your_gemini_api_key_here
 
+# OpenWeather API Key (for real weather forecasts)
+OPENWEATHER_API_KEY=your_openweather_api_key_here
+
 # Environment
 NODE_ENV=development
 ```
 
-**Important**: Replace `your_gemini_api_key_here` with your actual Gemini API key.
+**Important**:
+
+- Replace `your_gemini_api_key_here` with your actual Gemini API key
+- Replace `your_openweather_api_key_here` with your OpenWeather API key (get one free at [openweathermap.org](https://openweathermap.org/api))
 
 ### Step 4: Database Setup and Data Migration
 
@@ -153,11 +157,11 @@ node setup-check.js
 
 This will check:
 
--  Node.js installation and version
--  npm availability
--  MongoDB connection
--  Project dependencies
--  Environment configuration
+- Node.js installation and version
+- npm availability
+- MongoDB connection
+- Project dependencies
+- Environment configuration
 
 ### Step 6: Start the Application
 
@@ -269,7 +273,6 @@ This creates a timestamped backup folder with:
   - **Solution**: Make sure MongoDB service is running
   - **Windows**: Open Services, find "MongoDB Server", ensure it's running
 
-
 ### Port Already in Use
 
 - **Error**: "EADDRINUSE: address already in use :::5000"
@@ -301,7 +304,6 @@ This creates a timestamped backup folder with:
 - Verify your email and password are correct
 - Check if Caps Lock is on
 - Try registering again if you forgot your details
-
 
 ## Security Notes
 
@@ -352,13 +354,12 @@ Personal-trip-planner/
 - `npm run build` - Build for production
 - `npm test` - Run tests
 
-
 Once everything is set up:
 
--  Users can register and login
--  Generate AI-powered trip plans
--  Save and manage routes
--  View trips on interactive maps
+- Users can register and login
+- Generate AI-powered trip plans
+- Save and manage routes
+- View trips on interactive maps
 
 The application will be available at:
 
