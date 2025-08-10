@@ -25,18 +25,16 @@ function Register() {
   };
 
   return (
-      <div className="container">
+    <div className="container">
       <h2>Register</h2>
-      <input placeholder="Username" onChange={e => setUsername(e.target.value)} />
+      <input className='input' placeholder="Username" onChange={e => setUsername(e.target.value)} />
       <br />
-      <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
+      <input className='input' placeholder="Email" onChange={e => setEmail(e.target.value)} />
       <br />
-      <input placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
+      <input className='input' placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
       <br />
-      <button onClick={handleRegister}>Register</button>
+      <button className='btn-secondary' onClick={handleRegister}>Create New User</button>
       <br />
-      <br />
-      <button onClick={() => navigate('/login')}>Login</button>
       <br />
       <p>{message}</p>
     </div>

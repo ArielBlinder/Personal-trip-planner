@@ -29,16 +29,14 @@ function Login() {
   };
 
   return (
-      <div className="container">
+    <div className="container">
       <h2>Login</h2>
-      <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
+      <input className='input' placeholder="Email" onChange={e => setEmail(e.target.value)} />
       <br />
-      <input placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
+      <input className='input' placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
       <br />
-      <button onClick={handleLogin}>Login</button>
-      <br />
-      <br />
-      <button onClick={() => navigate('/register')}>Register</button>
+      <button className='btn-secondary' onClick={handleLogin}>Login</button>
+      <button className='btn-secondary' onClick={() => navigate('/register')} style={{marginLeft: "20px"}}>Register</button>
       <br />
       <p>{message}</p>
     </div>
