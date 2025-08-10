@@ -5,42 +5,187 @@ body {
 }
 
 .container {
-  max-width: 400px;
-  margin: 100px auto;
-  padding: 2rem;
+  max-width: 600px;
+  margin: 60px auto 40px auto;
+  padding: 2rem 2.5rem;
   background: white;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   border-radius: 8px;
 }
 
-input {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 1rem;
-  font-size: 16px;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
 }
 
-button {
-  padding: 10px 16px;
-  margin-right: 10px;
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
+.header h2 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #222;
+}
+
+.header p {
+  font-size: 1rem;
+  color: #555;
+  margin-top: 4px;
+}
+
+.btn-primary {
+  background-color: hsl(134, 61%, 41%);
   border: none;
-  border-radius: 4px;
+  padding: 10px 20px;
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-button:hover {
-  background-color: #0056b3;
+.btn-primary:hover {
+  background-color: hsl(134, 61%, 31%);
 }
 
-h2 {
-  margin-bottom: 1rem;
+.btn-secondary {
+  background-color: hsl(211, 100%, 50%);
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-p {
-  font-size: 14px;
-  color: #333;
+.btn-secondary:hover {
+  background-color: hsl(211, 100%, 35%);
+}
+
+.logout {
+  background-color: hsl(354, 61%, 56%);
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout:hover {
+  background-color: hsl(354, 61%, 46%);
+}
+
+.btn-disabled {
+  background-color: hsl(0, 0%, 65%);
+  cursor: not-allowed;
+}
+
+.input {
+  padding: 10px 12px;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  border: 1.8px solid hsl(0, 0%, 80%);
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+label {
+  font-weight: 600;
+  color: hsl(0, 0%, 27%);
+  display: block;
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+
+.error-message {
+  color: hsl(0, 65%, 51%);
+  font-weight: 600;
+  margin-top: -10px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.trip-container {
+  margin-bottom: 25px;
+  background-color: hsl(210, 20%, 98%);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.05);
+}
+
+.trip-container h3 {
+  margin-top: 0;
+  font-weight: 700;
+  color: hsl(235, 66%, 30%);
+  margin-bottom: 12px;
+}
+
+.trip-container p {
+  margin: 8px 0;
+  font-size: 1rem;
+  color: hsl(0, 0%, 20%);
+}
+
+.trip-container ul {
+  padding-left: 20px;
+  margin-top: 10px;
+  color: hsl(0, 0%, 33%);
+}
+
+.trip-container li {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.trip-save-btn {
+  background-color:  hsl(134, 61%, 41%);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.trip-save-btn :hover {
+  background-color: hsl(134, 61%, 31%);
+}
+
+.saved-route-indicator {
+  margin-top: 20px;
+  padding: 12px 15px;
+  background-color: hsl(205, 87%, 94%);
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #1565c0;
+  font-weight: 600;
+}
+
+.map-container {
+  height: 420px;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid hsl(0, 0%, 87%);
+  box-shadow: 0 3px 10px hsla(0, 0%, 0%, 0.1);
+}
+
+.back-btn {
+  background: transparent;
+  border: none;
+  color: hsl(211, 100%, 50%);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.back-btn:hover {
+  text-decoration: underline;
 }
