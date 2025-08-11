@@ -5,7 +5,6 @@ import GeneratedTrip from '../components/GeneratedTrip';
 
 function SavedRoutes() {
     const [selectedRoute, setSelectedRoute] = useState(null);
-    const [savedRoutesRefresh, setSavedRoutesRefresh] = useState(0);
     const navigate = useNavigate();
 
     const handleLoadRoute = (routeData) => {
@@ -35,7 +34,7 @@ function SavedRoutes() {
             {!selectedRoute ? (
                 <div>
                     <p> Here are all your saved routes. Click on any route to view its details and map.</p>
-                    <SavedRoutesList onLoadRoute={handleLoadRoute} refreshTrigger={savedRoutesRefresh} />
+                    <SavedRoutesList onLoadRoute={handleLoadRoute} refreshTrigger={0} />
                 </div>
             ) : (
                 <div>

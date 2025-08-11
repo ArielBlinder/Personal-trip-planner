@@ -1,6 +1,8 @@
 // API utility functions for route management
+import { API_ENDPOINTS, ERROR_MESSAGES } from './constants';
+import { ErrorHandler } from './errorHandler';
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = API_ENDPOINTS.BASE_URL;
 
 // Get auth headers with JWT token
 const getAuthHeaders = () => {
@@ -11,10 +13,10 @@ const getAuthHeaders = () => {
   };
 };
 
-// Handle API responses
+// Handle API responses with improved error handling
 const handleResponse = async (response) => {
   if (!response.ok) {
-    let errorMessage = 'API request failed';
+    let errorMessage = ERROR_MESSAGES.NETWORK;
     try {
       const error = await response.json();
       errorMessage = error.message || `HTTP ${response.status}: ${response.statusText}`;
@@ -31,41 +33,57 @@ const handleResponse = async (response) => {
 export const routeAPI = {
   // Save a route
   saveRoute: async (routeData, userRouteName, userRouteDescription = '') => {
-    const response = await fetch(`${BASE_URL}/api/routes/save`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        routeData,
-        userRouteName,
-        userRouteDescription
-      })
-    });
-    return handleResponse(response);
+    try {
+      const response = await fetch(`${BASE_URL}${API_ENDPOINTS.ROUTES.SAVE}`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          routeData,
+          userRouteName,
+          userRouteDescription
+        })
+      });
+      return handleResponse(response);
+    } catch (error) {
+      throw new Error(ErrorHandler.handleRouteError(error, 'save'));
+    }
   },
 
   // Get all saved routes for the user
   getSavedRoutes: async () => {
-    const response = await fetch(`${BASE_URL}/api/routes`, {
-      headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    try {
+      const response = await fetch(`${BASE_URL}${API_ENDPOINTS.ROUTES.GET_ALL}`, {
+        headers: getAuthHeaders()
+      });
+      return handleResponse(response);
+    } catch (error) {
+      throw new Error(ErrorHandler.handleRouteError(error, 'load'));
+    }
   },
 
   // Get specific route details
   getRoute: async (routeId) => {
-    const response = await fetch(`${BASE_URL}/api/routes/${routeId}`, {
-      headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    try {
+      const response = await fetch(`${BASE_URL}${API_ENDPOINTS.ROUTES.GET_ONE}/${routeId}`, {
+        headers: getAuthHeaders()
+      });
+      return handleResponse(response);
+    } catch (error) {
+      throw new Error(ErrorHandler.handleRouteError(error, 'load'));
+    }
   },
 
   // Delete a route
   deleteRoute: async (routeId) => {
-    const response = await fetch(`${BASE_URL}/api/routes/${routeId}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    try {
+      const response = await fetch(`${BASE_URL}${API_ENDPOINTS.ROUTES.DELETE}/${routeId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      return handleResponse(response);
+    } catch (error) {
+      throw new Error(ErrorHandler.handleRouteError(error, 'delete'));
+    }
   }
 };
 
@@ -73,20 +91,28 @@ export const routeAPI = {
 export const authAPI = {
   // Generate route (existing functionality)
   generateRoute: async (country, type) => {
-    const response = await fetch(`${BASE_URL}/api/generate-route`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ country, type })
-    });
-    return handleResponse(response);
+    try {
+      const response = await fetch(`${BASE_URL}${API_ENDPOINTS.ROUTES.GENERATE}`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ country, type })
+      });
+      return handleResponse(response);
+    } catch (error) {
+      throw new Error(ErrorHandler.handleTripGenerationError(error));
+    }
   },
 
   // Get protected user data
   getProtectedData: async () => {
-    const response = await fetch(`${BASE_URL}/protected`, {
-      headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    try {
+      const response = await fetch(`${BASE_URL}${API_ENDPOINTS.AUTH.PROTECTED}`, {
+        headers: getAuthHeaders()
+      });
+      return handleResponse(response);
+    } catch (error) {
+      throw new Error(ErrorHandler.handleApiError(error, ERROR_MESSAGES.AUTH_EXPIRED));
+    }
   }
 };
 
@@ -94,9 +120,28 @@ export const authAPI = {
 export const weatherAPI = {
   // Get 3-day weather forecast
   getThreeDayForecast: async (lat, lng) => {
-    const response = await fetch(`${BASE_URL}/api/weather?lat=${lat}&lng=${lng}`, {
-      headers: getAuthHeaders()
-    });
-    return handleResponse(response);
+    try {
+      const response = await fetch(`${BASE_URL}${API_ENDPOINTS.WEATHER}?lat=${lat}&lng=${lng}`, {
+        headers: getAuthHeaders()
+      });
+      return handleResponse(response);
+    } catch (error) {
+      throw new Error(ErrorHandler.handleWeatherError(error));
+    }
+  }
+};
+
+// Country Image API calls
+export const imageAPI = {
+  // Get country characteristic image
+  getCountryImage: async (country) => {
+    try {
+      const response = await fetch(`${BASE_URL}${API_ENDPOINTS.COUNTRY_IMAGE}?country=${encodeURIComponent(country)}`, {
+        headers: getAuthHeaders()
+      });
+      return handleResponse(response);
+    } catch (error) {
+      throw new Error(ErrorHandler.handleImageError(error));
+    }
   }
 };

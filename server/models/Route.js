@@ -31,29 +31,6 @@ const dailyInfoSchema = new mongoose.Schema({
   }
 });
 
-const weatherSchema = new mongoose.Schema({
-  degrees: {
-    type: Number,
-    required: true
-  },
-  description: {
-    type: String,
-    required: true
-  },
-  date: {
-    type: String,
-    required: false
-  },
-  humidity: {
-    type: Number,
-    required: false
-  },
-  windSpeed: {
-    type: Number,
-    required: false
-  }
-});
-
 const routeSchema = new mongoose.Schema({
   name: {
     type: String,

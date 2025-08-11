@@ -1,11 +1,11 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import GeneratedTrip from '../components/GeneratedTrip';
-
 import { useNavigate } from 'react-router-dom';
 import SaveRouteModal from '../components/SaveRouteModal';
-
 import { authAPI } from '../utils/api';
+import { TRIP_TYPES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../utils/constants';
+import { ValidationHelper, ErrorHandler } from '../utils/errorHandler';
 
 
 
@@ -13,7 +13,7 @@ import { authAPI } from '../utils/api';
 function Dashboard() {
   const [user, setUser] = useState('');
   const [country, setCountry] = useState('');
-  const [type, setType] = useState('hiking');
+  const [type, setType] = useState(TRIP_TYPES.HIKING);
   const [tripData, setTripData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -48,14 +48,14 @@ function Dashboard() {
     navigate('/saved-routes')
   }
 
-  const handleSaveSuccess = (routeId) => {
-    alert('Route saved successfully!');
-  };
+  const handleSaveSuccess = useCallback((routeId) => {
+    alert(SUCCESS_MESSAGES.ROUTE_SAVED);
+  }, []);
 
 
-  const generateTrip = async () => {
-    if (!country.trim()) {
-      setError('Please enter a country');
+  const generateTrip = useCallback(async () => {
+    if (!ValidationHelper.validateCountry(country)) {
+      setError(ERROR_MESSAGES.COUNTRY_REQUIRED);
       return;
     }
 
@@ -64,21 +64,21 @@ function Dashboard() {
     setTripData(null);
 
     try {
-      const data = await authAPI.generateRoute(country, type);
+      const data = await authAPI.generateRoute(ValidationHelper.sanitizeInput(country), type);
       // Add the input parameters to the trip data for saving
       const enhancedData = {
         ...data,
-        country: country.trim(),
+        country: ValidationHelper.sanitizeInput(country),
         type: type
       };
       setTripData(enhancedData);
       setIsLoadedRoute(false); // This is a newly generated route
     } catch (err) {
-      setError(err.message || 'Failed to generate trip');
+      setError(ErrorHandler.handleTripGenerationError(err));
     } finally {
       setLoading(false);
     }
-  };
+  }, [country, type]);
 
   return (
     <div className="container">
@@ -101,8 +101,8 @@ function Dashboard() {
         <div>
           <label>Trip Type: </label>
           <select className='input' value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="hiking">Hiking</option>
-            <option value="cycling">Cycling</option>
+            <option value={TRIP_TYPES.HIKING}>Hiking</option>
+            <option value={TRIP_TYPES.CYCLING}>Cycling</option>
           </select>
         </div>
         <button onClick={generateTrip} disabled={loading} className={`btn-secondary ${loading ? 'btn-disabled' : ''}`}>

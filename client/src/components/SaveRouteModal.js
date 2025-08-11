@@ -17,15 +17,7 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
     setError('');
 
     try {
-      console.log('🔍 Debug - Saving route with data:', {
-        tripData: tripData,
-        routeName: routeName.trim(),
-        routeDescription: routeDescription.trim(),
-        token: localStorage.getItem('token') ? 'Present' : 'Missing'
-      });
-
       const response = await routeAPI.saveRoute(tripData, routeName.trim(), routeDescription.trim());
-      console.log('Route saved successfully:', response);
       onSaveSuccess && onSaveSuccess(response.routeId);
       onClose();
       // Reset form
@@ -33,12 +25,7 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
       setRouteDescription('');
     } catch (error) {
       console.error('Save route error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        token: localStorage.getItem('token') ? 'Present' : 'Missing',
-        tripData: tripData
-      });
+
       setError(`Failed to save route: ${error.message}`);
     } finally {
       setLoading(false);
@@ -73,21 +60,6 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
         maxWidth: '90vw'
       }}>
         <h3 style={{ marginTop: 0 }}>Save Route</h3>
-        
-        {/* Debug Info */}
-        <div style={{ 
-          fontSize: '12px', 
-          color: '#666', 
-          marginBottom: '15px',
-          padding: '10px',
-          backgroundColor: '#f5f5f5',
-          borderRadius: '4px'
-        }}>
-          <strong>Debug Info:</strong><br/>
-          Token: {localStorage.getItem('token') ? 'Present' : 'Missing'}<br/>
-          Trip Data: {tripData ? 'Present' : 'Missing'}<br/>
-          Route Name: {tripData?.name || 'N/A'}
-        </div>
         
         <div style={{ marginBottom: '15px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>

@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, memo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import WeatherDisplay from './WeatherDisplay';
+import CountryImage from './CountryImage';
 import { weatherAPI } from '../utils/api';
+import { MAP_CONFIG, ROUTING_PROFILES } from '../utils/constants';
 
 // Fix for default markers in React Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -16,16 +18,13 @@ L.Icon.Default.mergeOptions({
 });
 
 function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
-  const defaultCenter = [32.0853, 34.7818];
   const mapRef = useRef(null);
   const routeRefs = useRef([]);
   const [mapReady, setMapReady] = useState(false);
   const [currentWeather, setCurrentWeather] = useState(null);
   const [loadingWeather, setLoadingWeather] = useState(false);
 
-  const dayColors = useCallback(() =>
-    ['#2563eb', '#ff4433', '#4bff33', '#ffff33', '#ee33ff'], []
-  );
+  const dayColors = useCallback(() => MAP_CONFIG.ROUTE_COLORS, []);
 
   // Handle map ready event
   const handleMapReady = useCallback(() => {
@@ -79,7 +78,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
         if (!mapRef.current) return; // Double-check map is still available
 
         const bounds = L.latLngBounds(tripData.spots.map(s => [s.lat, s.lng]));
-        mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+        mapRef.current.fitBounds(bounds, { padding: MAP_CONFIG.MARKER_BOUNDS_PADDING });
 
         // Clear all previous route controls safely
         routeRefs.current.forEach(route => {
@@ -139,7 +138,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
               show: false,
               router: L.Routing.osrmv1({
                 serviceUrl: 'https://router.project-osrm.org/route/v1',
-                profile: tripData.type === 'cycling' ? 'cycling' : 'walking'
+                profile: ROUTING_PROFILES[tripData.type] || ROUTING_PROFILES.hiking
               }),
               lineOptions: {
                 styles: [{ color: color, opacity: 0.8, weight: 4 }]
@@ -219,6 +218,11 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
             <p><strong>Key Spots:</strong> {tripData.spots_names.join(', ')}</p>
           )}
 
+          {/* Country Image Display */}
+          {tripData.country && (
+            <CountryImage country={tripData.country} />
+          )}
+
           {/* Weather Display Component */}
           <WeatherDisplay 
             weatherData={currentWeather || tripData.weather}
@@ -264,7 +268,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
 
       {/* Map */}
       <div className='map-container'>
-        <MapContainer center={defaultCenter} zoom={10} style={{ height: '100%', width: '100%' }} ref={mapRef} whenReady={handleMapReady}>
+        <MapContainer center={MAP_CONFIG.DEFAULT_CENTER} zoom={MAP_CONFIG.DEFAULT_ZOOM} style={{ height: '100%', width: '100%' }} ref={mapRef} whenReady={handleMapReady}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
           {tripData?.spots?.map((spot, index) => (
             <Marker key={index} position={[spot.lat, spot.lng]}>
@@ -277,4 +281,4 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
   );
 }
 
-export default GeneratedTrip;
+export default memo(GeneratedTrip);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 const WeatherDisplay = ({ 
   weatherData, 
@@ -10,12 +10,12 @@ const WeatherDisplay = ({
     return (
       <div style={{ 
         padding: '15px',
-        backgroundColor: '#f8f9fa',
-        border: '1px solid #dee2e6',
+        backgroundColor: 'hsl(210, 15.80%, 92.50%)',
+        border: '1px solidhsl(210, 15.80%, 92.50%)',
         borderRadius: '4px',
         textAlign: 'center'
       }}>
-        <p style={{ margin: 0, color: '#6c757d' }}>
+        <p style={{ margin: 0, color: 'hsl(210, 13.80%, 88.60%)' }}>
           Weather forecast will appear here.
         </p>
       </div>
@@ -26,14 +26,14 @@ const WeatherDisplay = ({
     <div style={{ 
       marginBottom: '15px', 
       padding: '15px', 
-      backgroundColor: '#f8f9fa', 
+      backgroundColor: 'hsl(210, 15.80%, 92.50%)', 
       borderRadius: '5px',
-      border: '1px solid #e9ecef'
+      border: '1px solidhsl(210, 15.80%, 92.50%)'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ flex: 1 }}>
           <h4 style={{ margin: '0 0 10px 0', color: '#495057' }}>
-            🌤️ Weather Forecast (Next 3 Days)
+            🌤️ Weather Forecast for the next 3 days
             {isLoading && (
               <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#007bff', marginLeft: '10px' }}>
                 (Loading...)
@@ -96,7 +96,7 @@ const WeatherDisplay = ({
             <div style={{ 
               padding: '15px',
               backgroundColor: '#f8f9fa',
-              border: '1px solid #dee2e6',
+              border: '1px solidhsl(210, 13.80%, 88.60%)',
               borderRadius: '4px',
               textAlign: 'center'
             }}>
@@ -105,19 +105,10 @@ const WeatherDisplay = ({
               </p>
             </div>
           )}
-          
-          {/* Status messages */}
-          {weatherData && !isLoading && (
-            <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p style={{ fontSize: '12px', color: '#28a745', margin: 0 }}>
-                ✓ {isForSavedRoute ? 'Current weather forecast loaded' : 'Weather forecast included'}
-              </p>
-            </div>      
-          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default WeatherDisplay;
+export default memo(WeatherDisplay);

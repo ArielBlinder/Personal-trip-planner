@@ -1,39 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { routeAPI } from '../utils/api';
+import { ErrorHandler } from '../utils/errorHandler';
 
 function SavedRoutesList({ onLoadRoute, refreshTrigger }) {
   const [savedRoutes, setSavedRoutes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const loadSavedRoutes = async () => {
+  const loadSavedRoutes = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
       const routes = await routeAPI.getSavedRoutes();
       setSavedRoutes(routes);
     } catch (error) {
-      setError('Failed to load saved routes');
+      setError(ErrorHandler.handleRouteError(error, 'load'));
       console.error('Error loading routes:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadSavedRoutes();
-  }, [refreshTrigger]);
+  }, [refreshTrigger, loadSavedRoutes]);
 
-  const handleLoadRoute = async (routeId) => {
+  const handleLoadRoute = useCallback(async (routeId) => {
     try {
       const routeData = await routeAPI.getRoute(routeId);
       onLoadRoute(routeData);
     } catch (error) {
-      alert('Failed to load route: ' + error.message);
+      alert(ErrorHandler.handleRouteError(error, 'load'));
     }
-  };
+  }, [onLoadRoute]);
 
-  const handleDeleteRoute = async (routeId, routeName) => {
+  const handleDeleteRoute = useCallback(async (routeId, routeName) => {
     if (!window.confirm(`Are you sure you want to delete "${routeName}"?`)) {
       return;
     }
@@ -43,9 +44,9 @@ function SavedRoutesList({ onLoadRoute, refreshTrigger }) {
       // Refresh the list
       loadSavedRoutes();
     } catch (error) {
-      alert('Failed to delete route: ' + error.message);
+      alert(ErrorHandler.handleRouteError(error, 'delete'));
     }
-  };
+  }, [loadSavedRoutes]);
 
   if (loading) {
     return <p>Loading saved routes...</p>;
@@ -138,4 +139,4 @@ function SavedRoutesList({ onLoadRoute, refreshTrigger }) {
   );
 }
 
-export default SavedRoutesList;
+export default memo(SavedRoutesList);

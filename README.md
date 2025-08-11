@@ -1,66 +1,55 @@
 # Personal Trip Planner
 
-A full-stack web application that combines user authentication with AI-powered trip planning and interactive maps.
+A full-stack web application for planning and managing travel routes with AI-powered trip generation, interactive maps, and real-time weather forecasts.
 
 ## Features
 
 - **User Authentication**: Secure registration and login with JWT tokens
-- **AI Trip Planning**: Generate hiking, cycling, and walking trips using Gemini AI
-- **Interactive Maps**: View trip routes and points of interest on a dynamic map
+- **AI Trip Planning**: Generate hiking and cycling routes using Google Gemini AI
+- **Interactive Maps**: View routes and waypoints on dynamic maps with real routing
 - **Route Management**: Save, load, and delete your favorite routes
-- **Protected Routes**: Access control to ensure only authenticated users can plan trips
+- **Weather Integration**: Real-time 3-day weather forecasts for trip locations
+- **Country Images**: Beautiful country-characteristic images from Unsplash
+- **Protected Routes**: Secure access ensuring users only see their own routes
 
 ## Technology Stack
 
-### Frontend (Port 3000)
+### Frontend
 
-- React 19
+- React 19 with modern hooks and functional components
 - React Router DOM for navigation
-- React Leaflet for interactive maps
-- JWT decode for token handling
+- React Leaflet for interactive maps with OSRM routing
+- Responsive CSS design
+- JWT token handling
 
-### Backend (Port 5000)
+### Backend
 
-- Node.js with Express
+- Node.js with Express.js RESTful API
 - MongoDB with Mongoose ODM
-- JWT for authentication
-- bcrypt for password hashing
-- Google Gemini AI for trip generation
+- JWT authentication with bcrypt password hashing
+- Google Gemini AI for intelligent route generation
+- OpenWeatherMap API for weather forecasts
+- Unsplash API for country images
 
-## Installation & Setup
+## Prerequisites
 
-### Prerequisites
+Before starting, ensure you have:
 
-Before starting, make sure you have:
+- Node.js (version 16 or higher)
+- MongoDB Community Server (version 6.0 or higher)
+- Git version control
+- API keys for:
+  - Google Gemini AI
+  - OpenWeatherMap
+  - Unsplash
 
-- **Node.js** (v16 or higher) - [Download here](https://nodejs.org/)
-- **MongoDB Community Server** (v6.0 or higher) - [Download here](https://www.mongodb.com/try/download/community)
-- **Git** - [Download here](https://git-scm.com/downloads)
-- **Google Gemini API Key** - [Get one here](https://ai.google.dev/)
+## Installation
 
-### Step 1: Install MongoDB
-
-#### Windows:
-
-1. Download MongoDB Community Server from the official website
-2. Run the installer (.msi file)
-3. Choose "Complete" setup
-4. **Important**: Check "Install MongoDB as a Service" and "Run service as Network Service user"
-5. **Important**: Check "Install MongoDB Compass" (useful for database management)
-6. Complete the installation
-
-#### Verify MongoDB Installation:
-
-```bash
-# Check if MongoDB is running
-mongosh --eval "db.runCommand({ping: 1})"
-```
-
-### Step 2: Clone and Setup Project
+### 1. Clone and Install Dependencies
 
 ```bash
 # Clone the repository
-git clone <your-github-repository-url>
+git clone <your-repository-url>
 cd Personal-trip-planner
 
 # Install server dependencies
@@ -73,299 +62,238 @@ npm install
 cd ..
 ```
 
-### Step 3: Environment Configuration
+### 2. MongoDB Setup
+
+#### Windows Installation:
+
+1. Download MongoDB Community Server from the official website
+2. Run the installer and choose "Complete" setup
+3. Check "Install MongoDB as a Service" option
+4. Check "Install MongoDB Compass" for database management
+5. Complete installation
+
+#### Verify MongoDB:
+
+```bash
+# Test MongoDB connection
+mongosh --eval "db.runCommand({ping: 1})"
+```
+
+### 3. Environment Configuration
 
 Create a `.env` file in the `server` directory:
 
-```bash
-cd server
-```
-
-Create `.env` file with the following content:
-
 ```env
-# MongoDB Configuration
+# Database Configuration
 MONGODB_URI=mongodb://localhost:27017/trip-planner
 
-# JWT Secret (change this to a random string)
-JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
+# Authentication
+JWT_SECRET=your_secure_random_jwt_secret_key
 
-# Google Gemini AI API Key
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# OpenWeather API Key (for real weather forecasts)
-OPENWEATHER_API_KEY=your_openweather_api_key_here
+# API Keys
+GEMINI_API_KEY=your_gemini_ai_api_key
+OPENWEATHER_API_KEY=your_openweather_api_key
+UNSPLASH_ACCESS_KEY=your_unsplash_access_key
 
 # Environment
 NODE_ENV=development
 ```
 
-**Important**:
+**Required API Keys:**
 
-- Replace `your_gemini_api_key_here` with your actual Gemini API key
-- Replace `your_openweather_api_key_here` with your OpenWeather API key (get one free at [openweathermap.org](https://openweathermap.org/api))
+- **Gemini AI**: Get from [Google AI Studio](https://ai.google.dev/)
+- **OpenWeatherMap**: Free tier at [openweathermap.org](https://openweathermap.org/api)
+- **Unsplash**: Optional, get from [Unsplash Developers](https://unsplash.com/developers)
 
-### Step 4: Database Setup and Data Migration
+### 4. Verify Setup
 
-#### Option A: Start Fresh (Simplest)
-
-If you want to start with a clean database, simply run the server - MongoDB will create the database automatically when the first user registers.
-
-#### Option B: Migrate Existing Data
-
-If you have existing JSON backup files, you can migrate them:
-
-1. **Copy your JSON backup files** to the server directory
-2. **Rename the backup file** to `users.json`:
-   ```bash
-   cd server
-   cp users_backup_2025-08-05T08-38-34-649Z.json users.json
-   ```
-3. **Run the migration**:
-   ```bash
-   npm run migrate
-   ```
-
-#### Option C: Import from Another MongoDB Database
-
-If you have an existing MongoDB database:
-
-**From your original computer:**
-
-```bash
-# Export users collection
-mongodump --db trip-planner --collection users --out backup
-
-# Export routes collection (if it exists)
-mongodump --db trip-planner --collection routes --out backup
-```
-
-**On the new computer:**
-
-```bash
-# Import the data
-mongorestore backup
-```
-
-### Step 5: Verify Setup (Optional)
-
-Run the setup checker to verify everything is configured correctly:
+Run the setup verification script:
 
 ```bash
 node setup-check.js
 ```
 
-This will check:
+This checks Node.js, MongoDB, dependencies, and environment configuration.
 
-- Node.js installation and version
-- npm availability
-- MongoDB connection
-- Project dependencies
-- Environment configuration
+## Running the Application
 
-### Step 6: Start the Application
+Start both frontend and backend in separate terminals:
 
-Open **two terminal windows/tabs**:
-
-**Terminal 1 - Start the Backend Server:**
+**Terminal 1 - Backend Server:**
 
 ```bash
 cd server
 npm run dev
 ```
 
-You should see:
-
-```
-Server running on port 5000
-MongoDB Connected: localhost:27017
-```
-
-**Terminal 2 - Start the Frontend Client:**
+**Terminal 2 - Frontend Client:**
 
 ```bash
 cd client
 npm start
 ```
 
-The React application will open in your browser at `http://localhost:3000`
+The application will be available at:
 
-## How to Use the Application
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
+
+## Usage Guide
 
 ### Getting Started
 
-1. **Register/Login**:
+1. **Create Account**: Register with username, email, and password
+2. **Login**: Access your personal dashboard
+3. **Plan Route**: Enter country and select trip type (hiking/cycling)
+4. **Generate**: AI creates detailed routes with waypoints and distances
+5. **Explore**: View interactive map with routing and weather forecast
+6. **Save**: Store routes with custom names and descriptions
 
-   - **New users**: Click "Register" and create an account with username, email, and password
-   - **Existing users**: Click "Login" and enter your credentials
+### Route Planning Features
 
-2. **Plan a Trip**:
+**Hiking Routes:**
 
-   - Enter a country or location you want to visit
-   - Select trip type: 🥾 Hiking, 🚴 Cycling, or 🚶 Walking
-   - Click "Generate Trip" for AI-powered suggestions
+- Round-trip routes starting and ending at same location
+- 5-15 km per day distance range
+- Walking paths and trail routing
 
-3. **Explore Your Route**:
+**Cycling Routes:**
 
-   - View the interactive map with route markers
-   - See distances, estimated times, and descriptions
-   - Discover points of interest along your route
+- 2-day city-to-city routes
+- Maximum 60 km per day
+- Road and cycling path routing
 
-4. **Save Your Trip**:
-   - Click "Save This Route" to open the save dialog
-   - Add a route name (required) and description (optional)
-   - Click "Save Route" to store it in your account
+### Route Management
 
-### Managing Saved Routes
+- View all saved routes in organized list
+- Load routes to display on interactive map
+- Delete unwanted routes with confirmation
+- Routes include weather forecasts and country images
 
-- **View All Routes**: Navigate to the "Saved Routes" section
-- **Load a Route**: Click "Load" to display a saved route on the map
-- **Delete a Route**: Click "Delete" to permanently remove a route
+## API Reference
 
-### Tips for Best Experience
+### Authentication Endpoints
 
-- **Be Specific**: Include region names (e.g., "Swiss Alps" vs. "Switzerland")
-- **Try Different Types**: Same location offers different experiences for hiking/cycling/walking
-- **Save Variations**: Save multiple route options for the same destination
+- `POST /register` - User registration
+- `POST /login` - User authentication
+- `GET /protected` - Verify token validity
 
-## Data Export and Backup
+### Route Management
 
-### Export Your Current Data
+- `POST /api/generate-route` - Generate AI-powered route
+- `POST /api/routes/save` - Save route to user account
+- `GET /api/routes` - Get user's saved routes
+- `GET /api/routes/:id` - Get specific route details
+- `DELETE /api/routes/:id` - Delete saved route
 
-To backup your routes and user data (useful for migrating to another computer):
+### Additional Services
+
+- `GET /api/weather` - Get 3-day weather forecast
+- `GET /api/country-image` - Get country characteristic image
+
+## Data Management
+
+### Export Data
 
 ```bash
 cd server
 npm run export-data
 ```
 
-This creates a timestamped backup folder with:
+Creates timestamped backup with users and routes data.
 
-- `users_export.json` - User accounts and authentication data
-- `routes_export.json` - Saved trip routes and plans
-- `README.md` - Instructions for restoring the data
+### Import Data
 
-### Import Data on New Installation
-
-1. Copy the exported JSON files to your new server directory
-2. Rename `users_export.json` to `users.json`
-3. Run: `npm run migrate`
-
-## API Endpoints
-
-### Authentication
-
-- `POST /register` - Create new user account
-- `POST /login` - User login
-
-### Trip Planning
-
-- `POST /generate-trip` - Generate AI-powered trip suggestions
-- `GET /routes` - Get user's saved routes
-- `POST /routes` - Save a new route
-- `DELETE /routes/:id` - Delete a saved route
-
-## Troubleshooting
-
-### MongoDB Connection Issues
-
-- **Error**: "MongoNetworkError: connect ECONNREFUSED"
-  - **Solution**: Make sure MongoDB service is running
-  - **Windows**: Open Services, find "MongoDB Server", ensure it's running
-
-### Port Already in Use
-
-- **Error**: "EADDRINUSE: address already in use :::5000"
-  - **Solution**: Kill the process using the port
-  ```bash
-  # Find the process
-  netstat -ano | findstr :5000  # Windows
-  ```
-
-### Missing API Key
-
-- **Error**: API requests failing
-  - **Solution**: Make sure your Gemini API key is correctly set in the `.env` file
-
-### Trip Generation Failed
-
-- Check your internet connection
-- Verify the Gemini API key is configured correctly
-- Try a different destination or be more specific
-
-### Map Not Loading
-
-- Check your internet connection
-- Try refreshing the page
-- Ensure JavaScript is enabled in your browser
-
-### Login Issues
-
-- Verify your email and password are correct
-- Check if Caps Lock is on
-- Try registering again if you forgot your details
-
-## Security Notes
-
-1. **Change the JWT_SECRET** in production
-2. **Keep your .env file secret** - never commit it to Git
-3. **Use environment-specific configurations** for different deployments
-4. **Regularly backup your database**
-
-## Database Structure
-
-Your MongoDB database will contain:
-
-- **users** collection: User accounts with authentication
-- **routes** collection: Saved trip routes and plans
+1. Copy exported JSON files to server directory
+2. Rename users export file to `users.json`
+3. Run `npm run migrate`
 
 ## Project Structure
 
 ```
 Personal-trip-planner/
-├── client/                 # React frontend
+├── client/                    # React frontend application
 │   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── pages/         # Page components
-│   │   └── utils/         # API utilities
+│   │   ├── components/        # Reusable React components
+│   │   ├── pages/            # Page-level components
+│   │   ├── utils/            # API utilities and constants
+│   │   └── index.css         # Application styles
 │   └── package.json
-├── server/                # Node.js backend
-│   ├── config/           # Database configuration
-│   ├── models/           # MongoDB models
-│   ├── export-data.js    # Data export script
-│   ├── migrate.js        # Data migration script
+├── server/                   # Node.js backend application
+│   ├── config/              # Database configuration
+│   ├── models/              # MongoDB data models
+│   ├── services/            # External API services
+│   ├── index.js             # Main server application
+│   ├── migrate.js           # Data migration script
 │   └── package.json
-├── setup-check.js        # Setup verification script
-└── README.md            # This file
+├── setup-check.js           # Installation verification
+└── README.md               # Project documentation
 ```
 
-## Scripts Available
+## Available Scripts
 
-### Server Scripts
+### Server Commands
 
-- `npm start` - Start production server
-- `npm run dev` - Start development server with auto-reload
-- `npm run migrate` - Migrate JSON data to MongoDB
-- `npm run export-data` - Export current data to JSON files
+- `npm start` - Production server
+- `npm run dev` - Development with auto-reload
 
-### Client Scripts
+### Client Commands
 
-- `npm start` - Start development client
-- `npm run build` - Build for production
-- `npm test` - Run tests
+- `npm start` - Development client
+- `npm run build` - Production build
+- `npm test` - Run test suite
 
-Once everything is set up:
+## Troubleshooting
 
-- Users can register and login
-- Generate AI-powered trip plans
-- Save and manage routes
-- View trips on interactive maps
+### Common Issues
 
-The application will be available at:
+**MongoDB Connection Failed:**
 
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
+- Ensure MongoDB service is running
+- Check connection string in .env file
+- Verify MongoDB is installed correctly
 
-Enjoy.
+**API Key Errors:**
 
----
+- Verify all required API keys are set in .env
+- Check API key validity and quotas
+- Ensure .env file is in server directory
+
+**Port Already in Use:**
+
+- Kill processes using ports 3000 or 5000
+- Use different ports if needed
+
+**Route Generation Fails:**
+
+- Check internet connection
+- Verify Gemini API key and quota
+- Try different country names or be more specific
+
+### Performance Optimization
+
+- Routes are memoized to prevent unnecessary re-renders
+- Map components use efficient leaflet routing
+- Weather data includes fallback for offline scenarios
+- Images are optimized with loading states
+
+## Security Considerations
+
+1. **Environment Variables**: Never commit or share .env files
+2. **JWT Secret**: Use strong, unique secret for production
+3. **API Keys**: Restrict API key permissions when possible
+4. **Database**: Regular backups and access control
+5. **Input Validation**: All user inputs are sanitized
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For issues and questions:
+
+1. Check troubleshooting section above
+2. Review API documentation
+3. Verify environment configuration
+4. Check console logs for specific errors

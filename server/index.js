@@ -10,6 +10,7 @@ const connectDB = require('./config/database');
 const User = require('./models/User');
 const Route = require('./models/Route');
 const weatherService = require('./services/weatherService');
+const unsplashService = require('./services/unsplashService');
 
 // Connect to MongoDB
 connectDB();
@@ -264,7 +265,6 @@ app.post('/api/routes/save', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Route name already exists. Please choose a different name.' });
         }
 
-        // Create new route with explicit field mapping excluding weather 
         const route = new Route({
             name: routeData.name,
             description: routeData.description,
@@ -275,7 +275,6 @@ app.post('/api/routes/save', authenticateToken, async (req, res) => {
             spots: routeData.spots || [],
             daily_info: routeData.daily_info || [],
             total_distance_km: routeData.total_distance_km || 0,
-            weather: [], // don't save weather data
             userId: req.user.userId,
             userRouteName: userRouteName.trim(),
             userRouteDescription: userRouteDescription?.trim() || ''
@@ -391,6 +390,31 @@ app.get('/api/weather', authenticateToken, async (req, res) => {
         res.status(500).json({ 
             message: 'Failed to fetch weather data',
             forecast: weatherService.getFallbackWeather()
+        });
+    }
+});
+
+// GET
+// Route: Get Country Image (Protected)
+app.get('/api/country-image', authenticateToken, async (req, res) => {
+    try {
+        const { country } = req.query;
+        
+        if (!country) {
+            return res.status(400).json({ message: 'Country parameter is required' });
+        }
+
+        const imageData = await unsplashService.getCountryImage(country.trim());
+        
+        res.json({
+            country: country.trim(),
+            image: imageData
+        });
+    } catch (error) {
+        console.error('Country image API error:', error);
+        res.status(500).json({ 
+            message: 'Failed to fetch country image',
+            image: unsplashService.getFallbackImage(country || 'landscape')
         });
     }
 });
