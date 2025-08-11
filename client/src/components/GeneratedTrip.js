@@ -71,20 +71,22 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
     if (!tripData?.spots?.length || !mapRef.current || !mapReady || !tripData.daily_info?.length)
       return;
 
-    // Add delay to ensure map is ready
+    // Capture the current map reference for cleanup
+    const currentMap = mapRef.current;
 
+    // Add delay to ensure map is ready
     const timeoutId = setTimeout(() => {
       try {
-        if (!mapRef.current) return; // Double-check map is still available
+        if (!currentMap) return; // Double-check map is still available
 
         const bounds = L.latLngBounds(tripData.spots.map(s => [s.lat, s.lng]));
-        mapRef.current.fitBounds(bounds, { padding: MAP_CONFIG.MARKER_BOUNDS_PADDING });
+        currentMap.fitBounds(bounds, { padding: MAP_CONFIG.MARKER_BOUNDS_PADDING });
 
         // Clear all previous route controls safely
         routeRefs.current.forEach(route => {
           try {
-            if (route && mapRef.current && mapRef.current.hasLayer && mapRef.current.hasLayer(route)) {
-              mapRef.current.removeControl(route);
+            if (route && currentMap && currentMap.hasLayer && currentMap.hasLayer(route)) {
+              currentMap.removeControl(route);
             }
           } catch (error) {
             console.warn('Error removing route control:', error);
@@ -98,37 +100,6 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
           const color = dayColors()[index % dayColors().length];
           const waypoints = day.day_locations.map(location => L.latLng(location.lat, location.lng));
 
-          // try {
-          //   const res = await fetch("https://api.openrouteservice.org/v2/directions/foot-hiking/geojson", {
-          //     method: "POST",
-          //     headers: {
-          //       "Authorization": "your_api_key_here",
-          //       "Content-Type": "application/json"
-          //     },
-          //     body: JSON.stringify({
-          //       coordinates: coordinates,  // must be [lng, lat]
-          //       instructions: false
-          //     })
-          //   });
-
-          //   if (!res.ok) {
-          //     const errorDetails = await res.json();
-          //     throw new Error(`ORS API error: ${res.status} - ${JSON.stringify(errorDetails)}`);
-          //   }
-
-          //   const geojson = await res.json();
-
-          //   // Then render with Leaflet:
-          //   const routeLayer = L.geoJSON(geojson, {
-          //     style: { color: "blue", weight: 4, opacity: 0.8 }
-          //   }).addTo(mapRef.current);
-
-          //   routeRefs.current.push(routeLayer);
-
-          // } catch (error) {
-          //   console.error('Error fetching route:', error);
-          // }
-
           try {
             const control = L.Routing.control({
               waypoints: waypoints,
@@ -138,7 +109,13 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
               show: false,
               router: L.Routing.osrmv1({
                 serviceUrl: 'https://router.project-osrm.org/route/v1',
-                profile: ROUTING_PROFILES[tripData.type] || ROUTING_PROFILES.hiking
+                profile: ROUTING_PROFILES[tripData.type] || ROUTING_PROFILES.hiking,
+                // Additional routing options for better trail routing
+                options: {
+                  alternatives: false,
+                  steps: true,
+                  overview: 'full'
+                }
               }),
               lineOptions: {
                 styles: [{ color: color, opacity: 0.8, weight: 4 }]
@@ -146,8 +123,8 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
               createMarker: function () { return null; }
             });
 
-            if (mapRef.current) {
-              control.addTo(mapRef.current);
+            if (currentMap) {
+              control.addTo(currentMap);
 
               control.on("routesfound", e => {
                 // Route successfully found for this day
@@ -187,8 +164,8 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
       // Clean up routes when component unmounts or tripData changes
       routeRefs.current.forEach(route => {
         try {
-          if (route && mapRef.current && mapRef.current.hasLayer && mapRef.current.hasLayer(route)) {
-            mapRef.current.removeControl(route);
+          if (route && currentMap && currentMap.hasLayer && currentMap.hasLayer(route)) {
+            currentMap.removeControl(route);
           }
         } catch (error) {
           console.warn('Error removing route control on cleanup:', error);

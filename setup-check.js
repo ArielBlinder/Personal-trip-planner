@@ -97,10 +97,10 @@ if (fs.existsSync(envFile)) {
         warningResult('JWT Secret', 'Using default value or not configured');
     }
     
-    if (envContent.includes('GEMINI_API_KEY=') && !envContent.includes('your_gemini_api_key_here')) {
-        checkResult('Gemini API Key configured', true);
+    if (envContent.includes('GROQ_API_KEY=') && !envContent.includes('your_groq_api_key_here')) {
+        checkResult('Groq API Key configured', true);
     } else {
-        warningResult('Gemini API Key', 'Not configured - AI features will not work');
+        warningResult('Groq API Key', 'Not configured - AI features will not work');
     }
 } else {
     checkResult('.env file', false, 'Create .env file in server directory');
