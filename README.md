@@ -5,7 +5,7 @@ A full-stack web application for planning and managing travel routes with AI-pow
 ## Features
 
 - **User Authentication**: Secure registration and login with JWT tokens
-- **AI Trip Planning**: Generate hiking and cycling routes using Google Gemini AI
+- **AI Trip Planning**: Generate hiking and cycling routes using Groq's Llama AI
 - **Interactive Maps**: View routes and waypoints on dynamic maps with real routing
 - **Route Management**: Save, load, and delete your favorite routes
 - **Weather Integration**: Real-time 3-day weather forecasts for trip locations
@@ -27,7 +27,7 @@ A full-stack web application for planning and managing travel routes with AI-pow
 - Node.js with Express.js RESTful API
 - MongoDB with Mongoose ODM
 - JWT authentication with bcrypt password hashing
-- Google Gemini AI for intelligent route generation
+- Groq's Llama AI for intelligent route generation
 - OpenWeatherMap API for weather forecasts
 - Unsplash API for country images
 
@@ -39,7 +39,7 @@ Before starting, ensure you have:
 - MongoDB Community Server (version 6.0 or higher)
 - Git version control
 - API keys for:
-  - Google Gemini AI
+  - Groq API
   - OpenWeatherMap
   - Unsplash
 
@@ -91,7 +91,7 @@ MONGODB_URI=mongodb://localhost:27017/trip-planner
 JWT_SECRET=your_secure_random_jwt_secret_key
 
 # API Keys
-GEMINI_API_KEY=your_gemini_ai_api_key
+GROQ_API_KEY=your_groq_api_key
 OPENWEATHER_API_KEY=your_openweather_api_key
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
 
@@ -101,7 +101,7 @@ NODE_ENV=development
 
 **Required API Keys:**
 
-- **Gemini AI**: Get from [Google AI Studio](https://ai.google.dev/)
+- **Groq API**: Get from [Groq Console](https://console.groq.com/)
 - **OpenWeatherMap**: Free tier at [openweathermap.org](https://openweathermap.org/api)
 - **Unsplash**: Optional, get from [Unsplash Developers](https://unsplash.com/developers)
 
@@ -267,7 +267,7 @@ Personal-trip-planner/
 **Route Generation Fails:**
 
 - Check internet connection
-- Verify Gemini API key and quota
+- Verify Groq API key and quota
 - Try different country names or be more specific
 
 ### Performance Optimization

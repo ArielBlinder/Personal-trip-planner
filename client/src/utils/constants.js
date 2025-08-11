@@ -79,8 +79,53 @@ export const COORDINATE_BOUNDS = {
 };
 
 export const ROUTING_PROFILES = {
-  [TRIP_TYPES.HIKING]: 'walking',
+  [TRIP_TYPES.HIKING]: 'foot', // Better for trails and offroad paths
   [TRIP_TYPES.CYCLING]: 'cycling'
+};
+
+export const ROUTING_CONFIG = {
+  [TRIP_TYPES.HIKING]: {
+    profile: 'foot',
+    // Prefer trails and paths over roads
+    avoidHighways: true,
+    preferTrails: true,
+    // Enhanced options for better trail routing
+    alternatives: true,
+    geometries: 'geojson',
+    overview: 'full',
+    continue_straight: false,
+    // Add waypoint snapping for better trail connection
+    snapping: 'any'
+  },
+  [TRIP_TYPES.CYCLING]: {
+    profile: 'cycling',
+    avoidHighways: false,
+    preferRoads: true,
+    alternatives: false,
+    geometries: 'geojson',
+    overview: 'full'
+  }
+};
+
+// Alternative routing services for better trail coverage
+export const ROUTING_SERVICES = {
+  OSRM_FOOT: {
+    url: 'https://router.project-osrm.org/route/v1',
+    profile: 'foot',
+    priority: 1
+  },
+  OSRM_WALKING: {
+    url: 'https://router.project-osrm.org/route/v1', 
+    profile: 'walking',
+    priority: 2
+  },
+  // GraphHopper has better trail data for hiking
+  GRAPHHOPPER: {
+    url: 'https://graphhopper.com/api/1/route',
+    profile: 'foot',
+    priority: 3,
+    requiresKey: true
+  }
 };
 
 export const WEATHER_CONFIG = {

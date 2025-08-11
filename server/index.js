@@ -134,21 +134,35 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
 
     const hiking_criteria = `The trek must be a **round trip**: it starts and ends at the same location.
     The total distance per day should be between 5 and 15 kilometers.
-    The trek can be one day or multiple days, but each day must be within this range.`
+    The trek can be one day or multiple days, but each day must be within this range.
+    IMPORTANT: Hiking routes should prioritize trails, paths, gravel roads, and offroad routes suitable for hiking. 
+    Avoid major highways and busy roads when possible. Include hiking trails, forest paths, mountain trails, dirt roads, and gravel paths.
+    
+    CRITICAL FOR ROUTING: Provide MORE waypoints along the actual hiking trail route (every 1-2km) to ensure the routing system follows the correct paths.
+    Include intermediate waypoints at trail junctions, bridges, viewpoints, and other significant trail markers to guide the routing algorithm along the actual hiking paths.`
 
     const cycling_criteria = `the cycling trek must be 2 days from city to city.
 
     The maximum distance per day is 60 kilometers.`
 
-    const prompt = `give my a ${type} trip in ${country} that meets **all** the following criteria:
+    const prompt = `Create a detailed ${type} trip in ${country} that meets **all** the following criteria.
+    
+    **COORDINATE ACCURACY IS CRITICAL**: You must provide precise, real-world coordinates that correspond to actual ${type === 'hiking' ? 'trails, trailheads, and hiking waypoints' : 'roads, towns, and cycling routes'}. Inaccurate coordinates will break the mapping system.
+    
+    Requirements:
     ${type == "hiking" ? hiking_criteria : cycling_criteria}
     Include the following in your response:
     - Total distance of the entire trek.
     - General information about the trek.
     - A list of all **spots in order of visit for the whole trek**.
-    - The coordinates of the spots must be accurate, extract the lat and lng from the name of the spot from GOOGLE MAPS
-    - CRITICAL: Provide coordinates with AT LEAST 8 decimal places for maximum precision (e.g., 44.12345678, 1.56789012)
-    - Coordinates must correspond to actual trail waypoints, trailheads, viewpoints, or specific landmarks in openstreetmap.org
+    - The coordinates of the spots must be EXTREMELY ACCURATE and correspond to real locations
+    - CRITICAL: Use precise coordinates from authoritative mapping sources (OpenStreetMap, official trail databases, or verified geographic databases)
+    - Provide coordinates with AT LEAST 6-8 decimal places for maximum precision (e.g., 44.123456, 1.567890)
+    - For hiking: coordinates must correspond to actual trailheads, trail junctions, bridges, viewpoints, mountain huts, trail markers, or specific points ALONG the hiking trail (not just destinations)
+    - For cycling: coordinates must correspond to actual road junctions, towns, scenic stops, or cycling route waypoints
+    - Include MORE intermediate waypoints (every 1-2km) to help routing algorithms follow the correct trail/path instead of creating straight lines
+    - Verify coordinates represent accessible locations for the chosen activity type
+    - Double-check that coordinates are in the correct country and region specified
     - For each day:
     - A description of the day, including where it starts and ends, and where to sleep if the trek is multiple days.
     - A list of spots visited in order of visit including spot of sleep.
@@ -164,17 +178,17 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
         "logistics": "practical info: starting point, access, transport",
         "spots_names": ["Place1", "Place2", ...],
         "spots": [
-        { "name": "Place1", "lat": 44.12345678, "lng": 1.56789012 },
-        { "name": "Place2", "lat": 44.45670543, "lng": 1.78905234 }
+        { "name": "Specific Trail Name or Landmark", "lat": 44.123456, "lng": 1.567890 },
+        { "name": "Exact Waypoint or Junction", "lat": 44.456789, "lng": 1.789012 }
         ],
         "daily_info": [
             {
                 "day": 1,
                 "description": "Short description of this day's hike, where it starts and ends",
                 "day_locations": [
-                { "name": "Place1", "lat": 44.12345678, "lng": 1.56789012 },
-                { "name": "Place2", "lat": 44.45670543, "lng": 1.78905234 },
-                { "name": "Place3", "lat": 44.45671678, "lng": 1.78902345 }
+                { "name": "Trailhead Parking", "lat": 44.123456, "lng": 1.567890 },
+                { "name": "Trail Junction", "lat": 44.456789, "lng": 1.789012 },
+                { "name": "Mountain Hut", "lat": 44.456123, "lng": 1.789345 }
                 ],
                 "distance_km": 12
             },
@@ -182,9 +196,9 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
                 "day": 2,
                 "description": "Short description of this day's hike, where it starts and ends",
                 "day_locations": [
-                { "name": "Place4", "lat": 44.12345678, "lng": 1.56789012 },
-                { "name": "Place5", "lat": 44.45670543, "lng": 1.78905234 },
-                { "name": "Place6", "lat": 44.45671678, "lng": 1.78902345 }
+                { "name": "Valley Viewpoint", "lat": 44.123456, "lng": 1.567890 },
+                { "name": "Forest Trail", "lat": 44.456789, "lng": 1.789012 },
+                { "name": "Summit Peak", "lat": 44.456123, "lng": 1.789345 }
                 ], 
                 "distance_km": 9
             }
@@ -197,21 +211,29 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
     IMPORTANT: Do NOT explain anything outside the JSON.`;
 
     try {
-        const geminiRes = await axios.post(
-            "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=" + process.env.GEMINI_API_KEY,
+        const groqRes = await axios.post(
+            "https://api.groq.com/openai/v1/chat/completions",
             {
-                "contents": [
+                "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+                "messages": [
                     {
-                        "parts": [
-                            { text: prompt }       
-                        ]
+                        "role": "user",
+                        "content": prompt
                     }
-                ]
+                ],
+                "temperature": 0.7,
+                "max_tokens": 4000
+            },
+            {
+                headers: {
+                    "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+                    "Content-Type": "application/json"
+                }
             }
         );
 
-        const content = geminiRes.data.candidates[0].content.parts[0].text;
-        console.log("Raw Gemini text:", content);
+        const content = groqRes.data.choices[0].message.content;
+        console.log("Raw Groq text:", content);
 
         const jsonString = content.replace(/```json|```/g, '').trim();
 
@@ -220,7 +242,7 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
             tripData = JSON.parse(jsonString)
         } catch (parseError) {
             console.error("JSON parse error:", parseError);
-            return res.status(500).json({ error: "Failed to parse Gemini JSON response" });
+            return res.status(500).json({ error: "Failed to parse Groq JSON response" });
         }
 
         // Replace LLM weather with real weather forecast
@@ -240,7 +262,7 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
         res.json(tripData);
 
     } catch (error) {
-        console.error("Gemini Error:", error.response?.data || error.message);
+        console.error("Groq Error:", error.response?.data || error.message);
         res.status(500).json({ error: "Failed to generate trip" });
     }
 });
