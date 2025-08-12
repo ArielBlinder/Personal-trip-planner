@@ -123,7 +123,39 @@ const CountryImage = ({ country, className = '', style = {} }) => {
               transition: 'opacity 0.3s ease'
             }}
           />
-
+{/* Image Description Overlay */}
+{imageLoaded && imageData.description && (
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: 'linear-gradient(transparent, rgba(93, 93, 93, 0.7))',
+              color: 'rgba(255, 255, 255, 0.5)',
+              padding: '20px 15px 15px',
+              fontSize: '14px',
+              lineHeight: '1.4'
+            }}>
+              <p style={{ 
+                margin: 0,
+                textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)',
+                color: 'rgba(255, 255, 255, 0.5)  '
+              }}>
+                {imageData.description}
+              </p>
+              {imageData.attribution && (
+                <p style={{ 
+                  margin: '5px 0 0 0',
+                  fontSize: '12px',
+                  opacity: 0.8,
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
+                  color: '#d1ecf1' // Attribution color - light blue
+                }}>
+                  {imageData.attribution}
+                </p>
+              )}
+            </div>
+          )}
           
         </div>
       )}
