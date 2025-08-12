@@ -123,7 +123,7 @@ function authenticateToken(req, res, next) {
 // GET
 // Route: Protected
 app.get('/protected', authenticateToken, (req, res) => {
-    res.json({ message: `Hello ${req.user.username}, you have access to protected content` });
+    res.json({ message: `Hello ${req.user.username}, Welcome back, what would you like to do?` });
 });
 
 // POST

@@ -193,3 +193,5 @@ coverage/
 *.temp
 .DS_Store
 Thumbs.db 
+test_route_generator.py
+requirements.txt
