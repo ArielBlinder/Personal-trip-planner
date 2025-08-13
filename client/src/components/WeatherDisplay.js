@@ -8,14 +8,8 @@ const WeatherDisplay = ({
 }) => {
   if (!weatherData && !isLoading) {
     return (
-      <div style={{ 
-        padding: '15px',
-        backgroundColor: 'hsl(210, 15.80%, 92.50%)',
-        border: '1px solidhsl(210, 15.80%, 92.50%)',
-        borderRadius: '4px',
-        textAlign: 'center'
-      }}>
-        <p style={{ margin: 0, color: 'hsl(210, 13.80%, 88.60%)' }}>
+      <div className="weather-no-data">
+        <p className="weather-no-data-message">
           Weather forecast will appear here.
         </p>
       </div>
@@ -23,19 +17,13 @@ const WeatherDisplay = ({
   }
 
   return (
-    <div style={{ 
-      marginBottom: '15px', 
-      padding: '15px', 
-      backgroundColor: 'hsl(210, 15.80%, 92.50%)', 
-      borderRadius: '5px',
-      border: '1px solidhsl(210, 15.80%, 92.50%)'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ flex: 1 }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#495057' }}>
+    <div className="weather-container">
+      <div className="weather-header">
+        <div className="weather-header-content">
+          <h4 className="weather-title">
             🌤️ Weather Forecast for the next 3 days
             {isLoading && (
-              <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#007bff', marginLeft: '10px' }}>
+              <span className="weather-loading-text">
                 (Loading...)
               </span>
             )}
@@ -43,14 +31,8 @@ const WeatherDisplay = ({
           
           {/* Show loading state while fetching weather */}
           {isLoading ? (
-            <div style={{ 
-              padding: '20px',
-              backgroundColor: '#e7f3ff',
-              border: '1px solid #b3d9ff',
-              borderRadius: '4px',
-              textAlign: 'center'
-            }}>
-              <p style={{ margin: 0, color: '#0056b3' }}>
+            <div className="weather-loading-container">
+              <p className="weather-loading-message">
                 🌤️ Fetching current weather forecast...
               </p>
             </div>
@@ -58,25 +40,18 @@ const WeatherDisplay = ({
             /* Show weather data */
             <div>
               {weatherData.map((day, index) => (
-                <div key={index} style={{ 
-                  marginBottom: '8px',
-                  padding: '12px',
-                  backgroundColor: 'white',
-                  borderRadius: '6px',
-                  border: '1px solidhsl(210, 13.80%, 88.60%)',
-                  boxShadow: '0 1px 3px hsla(0, 0.00%, 0.00%, 0.10)'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <strong style={{ color: '#495057' }}>Day {index + 1}:</strong> 
-                      <span style={{ marginLeft: '8px', fontSize: '16px', fontWeight: 'bold', color: '#007bff' }}>
+                <div key={index} className="weather-day-item">
+                  <div className="weather-day-content">
+                    <div className="weather-day-main">
+                      <strong className="weather-day-label">Day {index + 1}:</strong> 
+                      <span className="weather-temperature">
                         {day.degrees}°C
                       </span>
-                      <span style={{ marginLeft: '8px', color: '#6c757d' }}>
+                      <span className="weather-description">
                         {day.description}
                       </span>
                     </div>
-                    <div style={{ textAlign: 'right', fontSize: '12px', color: '#6c757d' }}>
+                    <div className="weather-day-details">
                       {day.date && (
                         <div>{day.date}</div>
                       )}
@@ -93,14 +68,8 @@ const WeatherDisplay = ({
             </div>
           ) : (
             /* Fallback - should rarely be seen since weather fetches automatically */
-            <div style={{ 
-              padding: '15px',
-              backgroundColor: '#f8f9fa',
-              border: '1px solidhsl(210, 13.80%, 88.60%)',
-              borderRadius: '4px',
-              textAlign: 'center'
-            }}>
-              <p style={{ margin: 0, color: '#6c757d' }}>
+            <div className="weather-fallback">
+              <p className="weather-fallback-message">
                 Weather forecast not available.
               </p>
             </div>

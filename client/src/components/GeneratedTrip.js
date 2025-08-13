@@ -8,6 +8,9 @@ import WeatherDisplay from './WeatherDisplay';
 import CountryImage from './CountryImage';
 import { weatherAPI } from '../utils/api';
 import { MAP_CONFIG, ROUTING_PROFILES } from '../utils/constants';
+import polyline from '@mapbox/polyline';
+
+
 
 // Fix for default markers in React Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -67,113 +70,102 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
   }, [tripData]);
 
 
-  useEffect(() => {
-    if (!tripData?.spots?.length || !mapRef.current || !mapReady || !tripData.daily_info?.length)
-      return;
+ useEffect(() => {
+  if (!tripData?.spots?.length || !mapRef.current || !mapReady || !tripData.daily_info?.length)
+    return;
 
-    // Capture the current map reference for cleanup
-    const currentMap = mapRef.current;
+  const currentMap = mapRef.current;
 
-    // Add delay to ensure map is ready
-    const timeoutId = setTimeout(() => {
-      try {
-        if (!currentMap) return; // Double-check map is still available
+  const fetchRouteFromGraphHopper = async (waypoints) => {
+    const points = waypoints.map(p => [p.lng, p.lat]); // Note: GraphHopper expects [lng, lat] order
 
-        const bounds = L.latLngBounds(tripData.spots.map(s => [s.lat, s.lng]));
-        currentMap.fitBounds(bounds, { padding: MAP_CONFIG.MARKER_BOUNDS_PADDING });
+    const body = {
+      points,
+      profile: 'foot',  // Always foot route
+      locale: 'en',
+      instructions: false,
+      points_encoded: true
+    };
 
-        // Clear all previous route controls safely
-        routeRefs.current.forEach(route => {
-          try {
-            if (route && currentMap && currentMap.hasLayer && currentMap.hasLayer(route)) {
-              currentMap.removeControl(route);
-            }
-          } catch (error) {
-            console.warn('Error removing route control:', error);
-          }
-        });
-        routeRefs.current = [];
+    const params = new URLSearchParams({
+      key: process.env.REACT_APP_GRAPHHOPPER_API_KEY
+    });
 
-        tripData.daily_info.forEach((day, index) => {
-          if (!day.day_locations || day.day_locations.length === 0) return;
+    const res = await fetch(`https://graphhopper.com/api/1/route?${params}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
 
-          const color = dayColors()[index % dayColors().length];
-          const waypoints = day.day_locations.map(location => L.latLng(location.lat, location.lng));
+    if (!res.ok) {
+      console.error('GraphHopper routing failed:', res.status);
+      return null;
+    }
 
-          try {
-            const control = L.Routing.control({
-              waypoints: waypoints,
-              routeWhileDragging: false,
-              draggableWaypoints: false,
-              addWaypoints: false,
-              show: false,
-              router: L.Routing.osrmv1({
-                serviceUrl: 'https://router.project-osrm.org/route/v1',
-                profile: ROUTING_PROFILES[tripData.type] || ROUTING_PROFILES.hiking,
-                // Additional routing options for better trail routing
-                options: {
-                  alternatives: false,
-                  steps: true,
-                  overview: 'full'
-                }
-              }),
-              lineOptions: {
-                styles: [{ color: color, opacity: 0.8, weight: 4 }]
-              },
-              createMarker: function () { return null; }
-            });
+    return await res.json();
+  };
 
-            if (currentMap) {
-              control.addTo(currentMap);
+  const decodePolyline = (encoded) => {
+    const coords = polyline.decode(encoded);
+    return coords.map(([lat, lng]) => L.latLng(lat, lng));
+  };
 
-              control.on("routesfound", e => {
-                // Route successfully found for this day
-              });
+  const timeoutId = setTimeout(async () => {
+    try {
+      if (!currentMap) return;
 
-              control.on("routingerror", e => {
-                console.warn("Routing error for day", index + 1, e);
-              });
+      const bounds = L.latLngBounds(tripData.spots.map(s => [s.lat, s.lng]));
+      currentMap.fitBounds(bounds, { padding: MAP_CONFIG.MARKER_BOUNDS_PADDING });
 
-              routeRefs.current.push(control);
-            }
-          } catch (error) {
-            console.error(`Error creating route control for day ${index + 1}:`, error);
-          }
-        });
-
-        // Hide routing instructions
-        setTimeout(() => {
-          const containers = document.querySelectorAll('.leaflet-routing-container');
-          containers.forEach(container => {
-            try {
-              container.style.display = 'none';
-            } catch (error) {
-              console.warn('Error hiding routing container:', error);
-            }
-          });
-        }, 1000);
-
-      } catch (error) {
-        console.error('Error in map rendering:', error);
-      }
-    }, 500);
-
-   // Cleanup function
-    return () => {
-      clearTimeout(timeoutId);
-      // Clean up routes when component unmounts or tripData changes
-      routeRefs.current.forEach(route => {
-        try {
-          if (route && currentMap && currentMap.hasLayer && currentMap.hasLayer(route)) {
-            currentMap.removeControl(route);
-          }
-        } catch (error) {
-          console.warn('Error removing route control on cleanup:', error);
+      // Remove old polylines
+      routeRefs.current.forEach(layer => {
+        if (currentMap.hasLayer(layer)) {
+          currentMap.removeLayer(layer);
         }
       });
       routeRefs.current = [];
-    };
-  }, [tripData, dayColors, mapReady]);
+
+      for (let index = 0; index < tripData.daily_info.length; index++) {
+        const day = tripData.daily_info[index];
+        if (!day.day_locations || day.day_locations.length === 0) continue;
+
+        const color = dayColors()[index % dayColors().length];
+        const waypoints = day.day_locations.map(location => ({
+          lat: location.lat,
+          lng: location.lng
+        }));
+
+        try {
+          const routeData = await fetchRouteFromGraphHopper(waypoints);
+
+          if (routeData && routeData.paths && routeData.paths.length > 0) {
+            const encodedPoints = routeData.paths[0].points;
+            const coordinates = decodePolyline(encodedPoints);
+
+            const polylineLayer = L.polyline(coordinates, {
+              color,
+              opacity: 0.8,
+              weight: 4
+            }).addTo(currentMap);
+
+            routeRefs.current.push(polylineLayer);
+            currentMap.fitBounds(polylineLayer.getBounds(), { padding: [50, 50] });
+          } else {
+            console.warn(`No route found for day ${index + 1}`);
+          }
+        } catch (error) {
+          console.error(`Error creating route for day ${index + 1}:`, error);
+        }
+      }
+
+    } catch (error) {
+      console.error('Error in map rendering:', error);
+    }
+  }, 500);
+
+  return () => clearTimeout(timeoutId);
+
+}, [tripData, dayColors, mapReady]);
 
   // Auto-fetch weather for loaded routes
   useEffect(() => {

@@ -40,29 +40,12 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '30px',
-        borderRadius: '8px',
-        width: '400px',
-        maxWidth: '90vw'
-      }}>
-        <h3 style={{ marginTop: 0 }}>Save Route</h3>
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h3 className="modal-title">Save Route</h3>
         
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+        <div className="modal-field">
+          <label className="modal-label">
             Route Name *
           </label>
           <input
@@ -70,19 +53,13 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
             value={routeName}
             onChange={(e) => setRouteName(e.target.value)}
             placeholder="Enter a name for your route"
-            style={{
-              width: '100%',
-              padding: '8px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '14px'
-            }}
+            className="modal-input"
             maxLength={50}
           />
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+        <div className="modal-field-large">
+          <label className="modal-label">
             Description (Optional)
           </label>
           <textarea
@@ -90,41 +67,21 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
             onChange={(e) => setRouteDescription(e.target.value)}
             placeholder="Add a description for your route"
             rows={3}
-            style={{
-              width: '100%',
-              padding: '8px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '14px',
-              resize: 'vertical'
-            }}
+            className="modal-textarea"
             maxLength={200}
           />
         </div>
 
         {error && (
-          <div style={{ 
-            color: 'red', 
-            marginBottom: '15px',
-            padding: '10px',
-            backgroundColor: '#ffebee',
-            borderRadius: '4px',
-            fontSize: '14px'
-          }}>
+          <div className="modal-error">
             {error}
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+        <div className="modal-actions">
           <button
             onClick={handleClose}
-            style={{
-              padding: '10px 20px',
-              border: '1px solid #ddd',
-              backgroundColor: 'white',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
+            className="modal-cancel-btn"
             disabled={loading}
           >
             Cancel
@@ -132,14 +89,7 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
           <button
             onClick={handleSave}
             disabled={loading || !routeName.trim()}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: loading ? '#ccc' : '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer'
-            }}
+            className="modal-save-btn"
           >
             {loading ? 'Saving...' : 'Save Route'}
           </button>
