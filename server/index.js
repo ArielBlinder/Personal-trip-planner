@@ -151,12 +151,19 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
     
     Requirements:
     ${type == "hiking" ? hiking_criteria : cycling_criteria}
+    
+    **Verification Process for Waypoints:**
+    1.  For each named location to be included as a waypoint (e.g., "Ein Gedi Beach Access"), perform an explicit search using a reliable mapping service.
+    2.  Find the exact name of the location as it appears on the map.
+    3.  Retrieve the official, precise coordinates (with at least 6-8 decimal places) for that exact location.
+    4.  If the exact name is not found, search for the most similar, well-defined point on the map that aligns with the described trek and use its precise coordinates.
+    5.  Only after this verification is complete, add the waypoint to the JSON. This ensures the coordinates are accurate and up-to-date.
+
     Include the following in your response:
     - Total distance of the entire trek.
     - General information about the trek.
     - A list of all **spots in order of visit for the whole trek**.
     - The coordinates of the spots must be EXTREMELY ACCURATE and correspond to real locations
-    - CRITICAL: Use precise coordinates from authoritative mapping sources (OpenStreetMap, official trail databases, or verified geographic databases)
     - Provide coordinates with AT LEAST 6-8 decimal places for maximum precision (e.g., 44.123456, 1.567890)
     - For hiking: coordinates must correspond to actual trailheads, trail junctions, bridges, viewpoints, mountain huts, trail markers, or specific points ALONG the hiking trail (not just destinations)
     - For cycling: coordinates must correspond to actual road junctions, towns, scenic stops, or cycling route waypoints
@@ -169,8 +176,6 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
     - A main list of all **spots in order of visit for the whole trek**.
     - Practical logistics: how to access the trek, how to get there, and where it begins.
 
-
-    
     Return the response as a JSON object with the following fields:
     {
         "name": "Name of the trek",
@@ -203,13 +208,10 @@ app.post("/api/generate-route", authenticateToken, async (req, res) => {
                 "distance_km": 9
             }
         ],
-        "total_distance_km": 21,
-        
+        "total_distance_km": 21
     }
-
-
     IMPORTANT: Do NOT explain anything outside the JSON.`;
-
+    
     try {
         const groqRes = await axios.post(
             "https://api.groq.com/openai/v1/chat/completions",
