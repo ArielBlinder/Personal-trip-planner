@@ -58,52 +58,27 @@ const CountryImage = ({ country, className = '', style = {} }) => {
   return (
     <div 
       className={`country-image-container ${className}`}
-      style={{
-        marginBottom: '20px',
-        borderRadius: '8px',
-        overflow: 'hidden',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        backgroundColor: '#f8f9fa',
-        ...style
-      }}
+      style={style}
     >
       {/* Loading State */}
       {loading && (
-        <div style={{
-          height: '300px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#f8f9fa',
-          border: '1px solid #e9ecef'
-        }}>
-          <div style={{ textAlign: 'center', color: '#6c757d' }}>
-            <div style={{ fontSize: '24px', marginBottom: '8px' }}>🏞️</div>
-            <p style={{ margin: 0 }}>Loading beautiful view of {country}...</p>
+        <div className="country-image-loading">
+          <div className="country-image-loading-content">
+            <div className="country-image-loading-icon">🏞️</div>
+            <p className="country-image-loading-text">Loading beautiful view of {country}...</p>
           </div>
         </div>
       )}
 
       {/* Image Display */}
       {!loading && imageData && (
-        <div style={{ position: 'relative' }}>
+        <div className="country-image-wrapper">
           {/* Image Loading Placeholder */}
           {!imageLoaded && (
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '300px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#f8f9fa',
-              zIndex: 1
-            }}>
-              <div style={{ textAlign: 'center', color: '#6c757d' }}>
-                <div style={{ fontSize: '24px', marginBottom: '8px' }}>🏞️</div>
-                <p style={{ margin: 0 }}>Loading image...</p>
+            <div className="country-image-placeholder">
+              <div className="country-image-loading-content">
+                <div className="country-image-loading-icon">🏞️</div>
+                <p className="country-image-loading-text">Loading image...</p>
               </div>
             </div>
           )}
@@ -114,43 +89,17 @@ const CountryImage = ({ country, className = '', style = {} }) => {
             alt={imageData.description || `Beautiful landscape of ${country}`}
             onLoad={handleImageLoad}
             onError={handleImageError}
-            style={{
-              width: '100%',
-              height: '300px',
-              objectFit: 'cover',
-              display: 'block',
-              opacity: imageLoaded ? 1 : 0,
-              transition: 'opacity 0.3s ease'
-            }}
+            className="country-image"
+            style={{ opacity: imageLoaded ? 1 : 0 }}
           />
-{/* Image Description Overlay */}
-{imageLoaded && imageData.description && (
-            <div style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              background: 'linear-gradient(transparent, rgba(93, 93, 93, 0.7))',
-              color: 'rgba(255, 255, 255, 0.5)',
-              padding: '20px 15px 15px',
-              fontSize: '14px',
-              lineHeight: '1.4'
-            }}>
-              <p style={{ 
-                margin: 0,
-                textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)',
-                color: 'rgba(255, 255, 255, 0.5)  '
-              }}>
+          {/* Image Description Overlay */}
+          {imageLoaded && imageData.description && (
+            <div className="country-image-overlay">
+              <p className="country-image-description">
                 {imageData.description}
               </p>
               {imageData.attribution && (
-                <p style={{ 
-                  margin: '5px 0 0 0',
-                  fontSize: '12px',
-                  opacity: 0.8,
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
-                  color: '#d1ecf1' // Attribution color - light blue
-                }}>
+                <p className="country-image-attribution">
                   {imageData.attribution}
                 </p>
               )}
@@ -162,18 +111,10 @@ const CountryImage = ({ country, className = '', style = {} }) => {
 
       {/* Error State */}
       {!loading && error && !imageData && (
-        <div style={{
-          height: '300px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#f8f9fa',
-          border: '1px solid #e9ecef',
-          color: '#6c757d'
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '48px', marginBottom: '10px', opacity: 0.3 }}>🖼️</div>
-            <p style={{ margin: 0 }}>Image not available for {country}</p>
+        <div className="country-image-error">
+          <div className="country-image-error-content">
+            <div className="country-image-error-icon">🖼️</div>
+            <p className="country-image-error-text">Image not available for {country}</p>
           </div>
         </div>
       )}

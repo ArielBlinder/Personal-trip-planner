@@ -55,42 +55,33 @@ function SavedRoutesList({ onLoadRoute, refreshTrigger }) {
   if (error) {
     return (
       <div>
-        <p style={{ color: 'red' }}>{error}</p>
-        <button onClick={loadSavedRoutes}>Retry</button>
+        <p className="saved-routes-error">{error}</p>
+        <button className="saved-routes-retry-btn" onClick={loadSavedRoutes}>Retry</button>
       </div>
     );
   }
 
   return (
-    <div style={{ marginBottom: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '5px' }}>
-      <h3>Saved Routes ({savedRoutes.length})</h3>
+    <div className="saved-routes-container">
+      <h3 className="saved-routes-title">Saved Routes ({savedRoutes.length})</h3>
       
       {savedRoutes.length === 0 ? (
-        <p style={{ color: '#666', fontStyle: 'italic' }}>
+        <p className="saved-routes-empty">
           No saved routes yet. Generate and save a route to see it here!
         </p>
       ) : (
-        <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+        <div className="saved-routes-list">
           {savedRoutes.map((route) => (
-            <div
-              key={route._id}
-              style={{
-                padding: '15px',
-                border: '1px solid #eee',
-                borderRadius: '5px',
-                marginBottom: '10px',
-                backgroundColor: '#f9f9f9'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ margin: '0 0 5px 0', color: '#333' }}>
+            <div key={route._id} className="saved-route-item">
+              <div className="saved-route-content">
+                <div className="saved-route-info">
+                  <h4 className="saved-route-name">
                     {route.userRouteName}
                   </h4>
-                  <p style={{ margin: '0 0 5px 0', color: '#666', fontSize: '14px' }}>
+                  <p className="saved-route-description">
                     {route.userRouteDescription || 'No description'}
                   </p>
-                  <div style={{ fontSize: '12px', color: '#888' }}>
+                  <div className="saved-route-meta">
                     <span>{route.country} • {route.type} • {route.total_distance_km}km</span>
                     <br />
                     <span>Saved: {new Date(route.createdAt).toLocaleDateString('en-GB', {
@@ -100,32 +91,16 @@ function SavedRoutesList({ onLoadRoute, refreshTrigger }) {
                      })}</span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '5px', marginLeft: '10px' }}>
+                <div className="saved-route-actions">
                   <button
                     onClick={() => handleLoadRoute(route._id)}
-                    style={{
-                      padding: '5px 10px',
-                      fontSize: '12px',
-                      backgroundColor: '#28a745',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '3px',
-                      cursor: 'pointer'
-                    }}
+                    className="saved-route-load-btn"
                   >
                     Load
                   </button>
                   <button
                     onClick={() => handleDeleteRoute(route._id, route.userRouteName)}
-                    style={{
-                      padding: '5px 10px',
-                      fontSize: '12px',
-                      backgroundColor: '#dc3545',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '3px',
-                      cursor: 'pointer'
-                    }}
+                    className="saved-route-delete-btn"
                   >
                     Delete
                   </button>
