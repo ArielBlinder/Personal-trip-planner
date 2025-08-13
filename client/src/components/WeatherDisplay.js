@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 
+// Displays a simple 3-day forecast block. Supports a loading state and optional refresh.
 const WeatherDisplay = ({ 
   weatherData, 
   isLoading, 
@@ -28,6 +29,10 @@ const WeatherDisplay = ({
               </span>
             )}
           </h4>
+          {/* Optional refresh shown for saved routes when handler provided */}
+          {!isLoading && isForSavedRoute && onRefresh && (
+            <button className="weather-refresh-btn" onClick={onRefresh}>Refresh</button>
+          )}
           
           {/* Show loading state while fetching weather */}
           {isLoading ? (

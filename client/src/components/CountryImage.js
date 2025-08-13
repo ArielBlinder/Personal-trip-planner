@@ -7,6 +7,7 @@ const CountryImage = ({ country, className = '', style = {} }) => {
   const [error, setError] = useState(null);
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  // Fetch a representative image for the given country
   const fetchCountryImage = useCallback(async (countryName) => {
     if (!countryName?.trim()) {
       return;

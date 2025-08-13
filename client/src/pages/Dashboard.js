@@ -6,10 +6,6 @@ import SaveRouteModal from '../components/SaveRouteModal';
 import { authAPI } from '../utils/api';
 import { TRIP_TYPES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../utils/constants';
 import { ValidationHelper, ErrorHandler } from '../utils/errorHandler';
-
-
-
-
 function Dashboard() {
   const [user, setUser] = useState('');
   const [country, setCountry] = useState('');
@@ -53,6 +49,7 @@ function Dashboard() {
   }, []);
 
 
+  // Request a new trip from the server using the chosen country and type
   const generateTrip = useCallback(async () => {
     if (!ValidationHelper.validateCountry(country)) {
       setError(ERROR_MESSAGES.COUNTRY_REQUIRED);

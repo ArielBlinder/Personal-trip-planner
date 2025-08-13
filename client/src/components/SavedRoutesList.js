@@ -7,6 +7,7 @@ function SavedRoutesList({ onLoadRoute, refreshTrigger }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Fetch user's saved routes from the server
   const loadSavedRoutes = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -25,6 +26,7 @@ function SavedRoutesList({ onLoadRoute, refreshTrigger }) {
     loadSavedRoutes();
   }, [refreshTrigger, loadSavedRoutes]);
 
+  // Load a single route's full details
   const handleLoadRoute = useCallback(async (routeId) => {
     try {
       const routeData = await routeAPI.getRoute(routeId);
@@ -34,6 +36,7 @@ function SavedRoutesList({ onLoadRoute, refreshTrigger }) {
     }
   }, [onLoadRoute]);
 
+  // Delete a saved route and refresh the list
   const handleDeleteRoute = useCallback(async (routeId, routeName) => {
     if (!window.confirm(`Are you sure you want to delete "${routeName}"?`)) {
       return;

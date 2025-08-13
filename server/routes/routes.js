@@ -51,77 +51,77 @@ router.post('/generate', authenticateToken, async (req, res) => {
     
     **COORDINATE ACCURACY IS CRITICAL**: You must provide precise, real-world coordinates that correspond to actual ${type === 'hiking' ? 'trails, trailheads, and hiking waypoints' : 'roads, towns, and cycling routes'}. Inaccurate coordinates will break the mapping system.
     
-    Requirements:
+Trip Requirements:
     ${tripCriteria[type]}
     
-    **Verification Process for Waypoints:**
-    - use wikidata or other reliable sources to find the coordinates of the waypoints
-    1.  For each named location to be included as a waypoint perform an explicit search using a reliable mapping service.
-    2.  Find the exact name of the location as it appears on the map.
-    3.  Retrieve the official, precise coordinates (with at least 6-8 decimal places) for that exact location.
-    4.  If the exact name is not found, search for the most similar, well-defined point on the map that aligns with the described trek and use its precise coordinates.
-    5.  Only after this verification is complete, add the waypoint to the JSON. This ensures the coordinates are accurate and up-to-date.
+**Coordinate Verification (MANDATORY):**
+1. For every place name (trailhead, junction, scenic point, town, etc.), search on **Wikidata**.
+2. Find the exact matching Wikidata item (QID) that represents the real location.
+3. Extract the official **coordinate location (P625)**.
+4. Only use verified points that exist in Wikidata — if not available, use the closest **mapped** point with a QID.
+5. DO NOT include locations that don't exist in Wikidata or on the map.
 
-    Include the following in your response:
-    - Total distance of the entire trek.
-    - General information about the trek.
-    - A list of all **spots in order of visit for the whole trek**.
-    - The coordinates of the spots must be EXTREMELY ACCURATE and correspond to real locations
-    - Provide coordinates with AT LEAST 6-8 decimal places for maximum precision (e.g., 44.123456, 1.567890)
-    - For hiking: coordinates must correspond to actual trailheads, trail junctions, bridges, viewpoints, mountain huts, trail markers, or specific points ALONG the hiking trail (not just destinations)
-    - For cycling: coordinates must correspond to actual road junctions, towns, scenic stops, or cycling route waypoints
-    - Include MORE intermediate waypoints (every 1-2km) to help routing algorithms follow the correct trail/path instead of creating straight lines
-    - Verify coordinates represent accessible locations for the chosen activity type
-    - Double-check that coordinates are in the correct country and region specified
-    - For each day:
-    - A description of the day, including where it starts and ends, and where to sleep if the trek is multiple days.
-    - A list of spots visited in order of visit including spot of sleep.
-    - A main list of all **spots in order of visit for the whole trek**.
-    - Practical logistics: how to access the trek, how to get there, and where it begins.
+---
 
-    Return the response as a JSON object with the following fields:
-    {
-        "name": "Name of the trek",
-        "description": "1-2 paragraphs about the place, how many days, total distance, total distance per day(only if multiple days)",
-        "logistics": "practical info: starting point, access, transport",
-        "spots_names": ["Place1", "Place2", ...],
-        "spots": [
+    **Response Must Include:**
+- Total trek distance.
+- General description of the trek.
+- A complete ordered list of **ALL waypoints** with highly accurate coordinates.
+- Dense intermediate waypoints every **1–2km** to guide routing properly.
+- For hiking: Use trailheads, huts, trail junctions, markers.
+- For cycling: Use towns, road crossings, scenic road points.
+- Ensure ALL coordinates are inside the specified **country** and fit the activity type.
+- For each day:
+  - A short summary (start, end, overnight location)
+  - Ordered list of locations visited (with coordinates)
+
+---
+
+    
+
+{
+    "name": "Name of the trek",
+    "description": "1-2 paragraphs about the place, how many days, total distance, total distance per day(only if multiple days)",
+    "logistics": "practical info: starting point, access, transport",
+    "spots_names": ["Place1", "Place2", ...],
+    "spots": [
         { "name": "Specific Trail Name or Landmark", "lat": 44.123456, "lng": 1.567890 },
         { "name": "Exact Waypoint or Junction", "lat": 44.456789, "lng": 1.789012 }
-        ],
-        "daily_info": [
-            {
-                "day": 1,
-                "description": "Short description of this day's hike, where it starts and ends",
-                "day_locations": [
+    ],
+    "daily_info": [
+        {
+            "day": 1,
+            "description": "Short description of this day's hike, where it starts and ends",
+            "day_locations": [
                 { "name": "Trailhead Parking", "lat": 44.123456, "lng": 1.567890 },
                 { "name": "Trail Junction", "lat": 44.456789, "lng": 1.789012 },
                 { "name": "Mountain Hut", "lat": 44.456123, "lng": 1.789345 }
-                ],
-                "distance_km": 12
-            },
-            {
-                "day": 2,
-                "description": "Short description of this day's hike, where it starts and ends",
-                "day_locations": [
+            ],
+            "distance_km": 12
+        },
+        {
+            "day": 2,
+            "description": "Short description of this day's hike, where it starts and ends",
+            "day_locations": [
                 { "name": "Valley Viewpoint", "lat": 44.123456, "lng": 1.567890 },
                 { "name": "Forest Trail", "lat": 44.456789, "lng": 1.789012 },
                 { "name": "Summit Peak", "lat": 44.456123, "lng": 1.789345 }
-                ], 
-                "distance_km": 9
-            }
-        ],
-        "total_distance_km": 21,
-        "country": "${country}",
-        "type": "${type}"
-    }
-    IMPORTANT: Do NOT explain anything outside the JSON.`;
+            ],
+            "distance_km": 9
+        }
+    ],
+    "total_distance_km": 21,
+    "country": "${country}",
+    "type": "${type}"
+}
+    **IMPORTANT:** Return ONLY a JSON object in the exact structure below. DO NOT include explanations.
+`;
 
     // Call AI service
     const groqResponse = await axios.post(
       "https://api.groq.com/openai/v1/chat/completions",
       {
-        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        model: "moonshotai/kimi-k2-instruct",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.7,
         max_tokens: 4000
