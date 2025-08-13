@@ -115,6 +115,7 @@ app.get('/health', (req, res) => {
   });
 });
 
+
 // API documentation endpoint
 app.get('/api', (req, res) => {
   res.json({
@@ -143,6 +144,7 @@ app.get('/api', (req, res) => {
     },
     timestamp: new Date().toISOString()
   });
+
 });
 
 // Protected test endpoint
