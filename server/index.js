@@ -221,5 +221,18 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
+// Start server after database connection
+const startServer = async () => {
+  try {
+    await initializeDatabase();
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
 // Start the application
 startServer();
