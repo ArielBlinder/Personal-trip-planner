@@ -80,30 +80,3 @@ export class ValidationHelper {
   }
 }
 
-/**
- * Simple coordinate validation
- */
-export const isValidCoordinate = (lat, lng) => {
-  return (
-    typeof lat === 'number' &&
-    typeof lng === 'number' &&
-    lat >= -90 && lat <= 90 &&
-    lng >= -180 && lng <= 180 &&
-    !isNaN(lat) && !isNaN(lng)
-  );
-};
-
-/**
- * Debounce utility for performance
- */
-export const debounce = (func, wait) => {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-};

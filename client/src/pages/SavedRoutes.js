@@ -7,6 +7,7 @@ function SavedRoutes() {
     const [selectedRoute, setSelectedRoute] = useState(null);
     const navigate = useNavigate();
 
+    // Display a previously saved route on the map
     const handleLoadRoute = (routeData) => {
         setSelectedRoute(routeData);
     };

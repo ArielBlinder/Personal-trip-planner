@@ -8,6 +8,7 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
   const [error, setError] = useState('');
 
   const handleSave = async () => {
+    // Basic validation
     if (!routeName.trim()) {
       setError('Route name is required');
       return;
@@ -37,7 +38,7 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
     onClose();
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) return null; // Do not render when closed
 
   return (
     <div className="modal-overlay">

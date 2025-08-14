@@ -54,23 +54,22 @@ router.post('/generate', authenticateToken, async (req, res) => {
 Trip Requirements:
     ${tripCriteria[type]}
     
-*Coordinate Verification (MANDATORY):*
-1. For every place name (trailhead, junction, scenic point, town, etc.), search on *Wikidata*.
+
+**Coordinate Verification (MANDATORY):**
+1. For every place name (trailhead, junction, scenic point, town, etc.), search on **Wikidata**.
 2. Find the exact matching Wikidata item (QID) that represents the real location.
-3. Extract the official *coordinate location (P625)*.
-4. Only use verified points that exist in Wikidata — if not available, use the closest *mapped* point with a QID.
+3. Extract the official **coordinate location (P625)**.
+4. Only use verified points that exist in Wikidata — if not available, use the closest **mapped** point with a QID.
 5. DO NOT include locations that don't exist in Wikidata or on the map.
 
----
-
-    *Response Must Include:*
+    **Response Must Include:**
 - Total trek distance.
 - General description of the trek.
-- A complete ordered list of *ALL waypoints* with highly accurate coordinates.
-- For each day use maximum 4 waypoints.
+- A complete ordered list of **ALL waypoints** with highly accurate coordinates.
+- Dense intermediate waypoints every **1–2km** to guide routing properly.
 - For hiking: Use trailheads, huts, trail junctions, markers.
 - For cycling: Use towns, road crossings, scenic road points.
-- Ensure ALL coordinates are inside the specified *country* and fit the activity type.
+- Ensure ALL coordinates are inside the specified **country** and fit the activity type.
 - For each day:
   - A short summary (start, end, overnight location)
   - Ordered list of locations visited (with coordinates)
@@ -114,7 +113,8 @@ Trip Requirements:
     "country": "${country}",
     "type": "${type}"
 }
-    *IMPORTANT:* Return ONLY a JSON object in the exact structure below. DO NOT include explanations.
+
+    **IMPORTANT:** Return ONLY a JSON object in the exact structure below. DO NOT include explanations.
 `;
 
     // Call AI service

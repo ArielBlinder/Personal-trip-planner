@@ -4,6 +4,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import SavedRoutes from './pages/SavedRoutes';
 
+// Defines top-level routes and simple auth gating for the dashboard
 function App() {
   const token = localStorage.getItem('token');
 

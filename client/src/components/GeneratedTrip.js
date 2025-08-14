@@ -2,12 +2,10 @@ import { useEffect, useRef, useState, useCallback, memo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet-routing-machine';
-import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import WeatherDisplay from './WeatherDisplay';
 import CountryImage from './CountryImage';
 import { weatherAPI } from '../utils/api';
-import { MAP_CONFIG, ROUTING_PROFILES } from '../utils/constants';
+import { MAP_CONFIG } from '../utils/constants';
 import polyline from '@mapbox/polyline';
 
 
@@ -20,6 +18,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
+// Renders trip details, a Leaflet map with daily polylines, and weather for the start location
 function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
   const mapRef = useRef(null);
   const routeRefs = useRef([]);
@@ -27,6 +26,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
   const [currentWeather, setCurrentWeather] = useState(null);
   const [loadingWeather, setLoadingWeather] = useState(false);
 
+  // Cycle through pre-defined route colors per day
   const dayColors = useCallback(() => MAP_CONFIG.ROUTE_COLORS, []);
 
   // Handle map ready event
@@ -35,6 +35,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
   }, []);
 
   // Fetch weather for loaded routes
+  // Fetch current 3-day forecast for the first spot of a saved route
   const fetchWeatherForRoute = useCallback(async (routeData) => {
     if (!routeData?.spots?.length || !isLoadedRoute) {
       return;
@@ -54,6 +55,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
   }, [isLoadedRoute]);
 
   // Refresh weather manually
+  // Allow manual refresh of weather (only for loaded/saved routes)
   const handleRefreshWeather = useCallback(async () => {
     if (tripData?.spots?.length) {
       setLoadingWeather(true);
@@ -105,6 +107,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
     return await res.json();
   };
 
+  // Decode GraphHopper-encoded polyline to Leaflet LatLngs
   const decodePolyline = (encoded) => {
     const coords = polyline.decode(encoded);
     return coords.map(([lat, lng]) => L.latLng(lat, lng));
@@ -114,10 +117,11 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
     try {
       if (!currentMap) return;
 
-      const bounds = L.latLngBounds(tripData.spots.map(s => [s.lat, s.lng]));
+       // Fit map to bounds of all trip spots
+       const bounds = L.latLngBounds(tripData.spots.map(s => [s.lat, s.lng]));
       currentMap.fitBounds(bounds, { padding: MAP_CONFIG.MARKER_BOUNDS_PADDING });
 
-      // Remove old polylines
+       // Remove old polylines (cleanup before drawing new ones)
       routeRefs.current.forEach(layer => {
         if (currentMap.hasLayer(layer)) {
           currentMap.removeLayer(layer);
@@ -236,7 +240,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
       )}
 
       {/* Map */}
-      <div className='map-container'>
+       <div className='map-container'>
         <MapContainer center={MAP_CONFIG.DEFAULT_CENTER} zoom={MAP_CONFIG.DEFAULT_ZOOM} style={{ height: '100%', width: '100%' }} ref={mapRef} whenReady={handleMapReady}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
           {tripData?.spots?.map((spot, index) => (
