@@ -47,21 +47,20 @@ router.post('/generate', authenticateToken, async (req, res) => {
     };
 
     // Build AI prompt
-    const prompt = `Create a detailed ${type} trip in ${country} that meets **all** the following criteria.
+    const prompt = `Create a detailed ${type} trip in ${country} that meets *all* the following criteria.
     
-    **COORDINATE ACCURACY IS CRITICAL**: You must provide precise, real-world coordinates that correspond to actual ${type === 'hiking' ? 'trails, trailheads, and hiking waypoints' : 'roads, towns, and cycling routes'}. Inaccurate coordinates will break the mapping system.
+    *COORDINATE ACCURACY IS CRITICAL*: You must provide precise, real-world coordinates that correspond to actual ${type === 'hiking' ? 'trails, trailheads, and hiking waypoints' : 'roads, towns, and cycling routes'}. Inaccurate coordinates will break the mapping system.
     
 Trip Requirements:
     ${tripCriteria[type]}
     
+
 **Coordinate Verification (MANDATORY):**
 1. For every place name (trailhead, junction, scenic point, town, etc.), search on **Wikidata**.
 2. Find the exact matching Wikidata item (QID) that represents the real location.
 3. Extract the official **coordinate location (P625)**.
 4. Only use verified points that exist in Wikidata — if not available, use the closest **mapped** point with a QID.
 5. DO NOT include locations that don't exist in Wikidata or on the map.
-
----
 
     **Response Must Include:**
 - Total trek distance.
@@ -114,6 +113,7 @@ Trip Requirements:
     "country": "${country}",
     "type": "${type}"
 }
+
     **IMPORTANT:** Return ONLY a JSON object in the exact structure below. DO NOT include explanations.
 `;
 
