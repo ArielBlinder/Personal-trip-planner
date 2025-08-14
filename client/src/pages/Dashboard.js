@@ -14,8 +14,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
-
-  const [isLoadedRoute, setIsLoadedRoute] = useState(false); // Track if route is loaded from saved routes
+  const [isLoadedRoute, setIsLoadedRoute] = useState(false); 
   const navigate = useNavigate();
 
 
@@ -62,14 +61,13 @@ function Dashboard() {
 
     try {
       const data = await authAPI.generateRoute(ValidationHelper.sanitizeInput(country), type);
-      // Add the input parameters to the trip data for saving
       const enhancedData = {
         ...data,
         country: ValidationHelper.sanitizeInput(country),
         type: type
       };
       setTripData(enhancedData);
-      setIsLoadedRoute(false); // This is a newly generated route
+      setIsLoadedRoute(false);
     } catch (err) {
       setError(ErrorHandler.handleTripGenerationError(err));
     } finally {
@@ -77,18 +75,25 @@ function Dashboard() {
     }
   }, [country, type]);
 
+
+  const clearTrip = () => {
+    setTripData(null);
+    setCountry('');
+    setType(TRIP_TYPES.HIKING);
+    setError('');
+    setShowSaveModal(false);
+    setIsLoadedRoute(false);
+  };
+
   return (
     <div className="container">
-      {/* Header with user info and logout */}
       <div className='header'>
         <div>
           <h2>Trip Planner</h2>
           <p>{user}</p>
         </div>
-        <button onClick={handleLogout} className="logout">Logout</button>
+        <button onClick={handleLogout} className="logout-btn">Logout</button>
       </div>
-
-              {/* Trip Search Form */}
       <div style={{ marginBottom: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '5px' }}>
         <h3>Generate Your Trip</h3>
         <div style={{ marginBottom: '10px' }}>
@@ -102,22 +107,21 @@ function Dashboard() {
             <option value={TRIP_TYPES.CYCLING}>Cycling</option>
           </select>
         </div>
-        <button onClick={generateTrip} disabled={loading} className={`btn-secondary ${loading ? 'btn-disabled' : ''}`}>
+        {tripData ? (
+          <button onClick={clearTrip} className="primary-action-btn">
+            Clear Trip
+          </button>
+        ) : (
+          <button onClick={generateTrip} disabled={loading} className={`primary-action-btn ${loading ? 'btn-disabled' : ''}`}>
           {loading ? 'Generating...' : 'Generate Trip'}
         </button>
+        )}
         {error && <p className="error-message">{error}</p>}
       </div>
-
-      
-
       <button onClick={handleShowSavedRoutes} className="back-btn" style={{ marginBottom: '20px' }}>Go To Saved Routes</button>
-
       {tripData && (
-
         <GeneratedTrip tripData={tripData} isLoadedRoute={isLoadedRoute} onSaveClick={() => setShowSaveModal(true)}/>
       )}
-
-      {/* Save Route Modal */}
       <SaveRouteModal isOpen={showSaveModal} onClose={() => setShowSaveModal(false)} tripData={tripData} onSaveSuccess={handleSaveSuccess}/>
     </div>
   );

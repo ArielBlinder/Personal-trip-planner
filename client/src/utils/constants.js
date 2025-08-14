@@ -4,7 +4,6 @@ export const TRIP_TYPES = {
   CYCLING: 'cycling'
 };
 
-// Note: ROUTE_CONSTRAINTS were unused in the client; removed to reduce noise.
 
 export const API_ENDPOINTS = {
   BASE_URL: 'http://localhost:5000',
@@ -14,7 +13,7 @@ export const API_ENDPOINTS = {
     PROTECTED: '/protected'
   },
   ROUTES: {
-    GENERATE: '/api/generate-route', // legacy path; server redirects to /api/routes/generate
+    GENERATE: '/api/generate-route',
     SAVE: '/api/routes/save',
     GET_ALL: '/api/routes',
     GET_ONE: '/api/routes',
@@ -48,12 +47,10 @@ export const SUCCESS_MESSAGES = {
 };
 
 export const MAP_CONFIG = {
-  DEFAULT_CENTER: [32.0853, 34.7818], // Default coordinates (Israel)
+  DEFAULT_CENTER: [32.0853, 34.7818],
   DEFAULT_ZOOM: 10,
   ROUTE_COLORS: ['#2563eb', '#ff4433', '#4bff33', '#ffff33', '#ee33ff'],
   IMAGE_HEIGHT: 300,
   MARKER_BOUNDS_PADDING: [50, 50]
 };
 
-// Removed unused VALIDATION, COORDINATE_BOUNDS, ROUTING_* and WEATHER_CONFIG constants
-// to keep the client bundle lean. Server enforces validation.

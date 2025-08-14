@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { imageAPI } from '../utils/api';
 
-const CountryImage = ({ country, className = '', style = {} }) => {
+const CountryImage = ({ country }) => {
   const [imageData, setImageData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,9 +25,7 @@ const CountryImage = ({ country, className = '', style = {} }) => {
       setError(err.message);
       // Set fallback image data
       setImageData({
-        url: `https://source.unsplash.com/800x400/?${encodeURIComponent(countryName)},landscape`,
-        description: `Beautiful landscape of ${countryName}`,
-        attribution: 'Photo from Unsplash'
+        url: `https://source.unsplash.com/800x400/?${encodeURIComponent(countryName)},landscape`
       });
     } finally {
       setLoading(false);
@@ -57,60 +55,13 @@ const CountryImage = ({ country, className = '', style = {} }) => {
   }
 
   return (
-    <div 
-      className={`country-image-container ${className}`}
-      style={style}
-    >
-      {/* Loading State */}
-      {loading && (
-        <div className="country-image-loading">
-          <div className="country-image-loading-content">
-            <div className="country-image-loading-icon">🏞️</div>
-            <p className="country-image-loading-text">Loading beautiful view of {country}...</p>
-          </div>
-        </div>
-      )}
-
+    <div className="country-image-container">
       {/* Image Display */}
       {!loading && imageData && (
         <div className="country-image-wrapper">
-          {/* Image Loading Placeholder */}
-          {!imageLoaded && (
-            <div className="country-image-placeholder">
-              <div className="country-image-loading-content">
-                <div className="country-image-loading-icon">🏞️</div>
-                <p className="country-image-loading-text">Loading image...</p>
-              </div>
-            </div>
-          )}
-
-          {/* Actual Image */}
-          <img
-            src={imageData.url}
-            alt={imageData.description || `Beautiful landscape of ${country}`}
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            className="country-image"
-            style={{ opacity: imageLoaded ? 1 : 0 }}
-          />
-          {/* Image Description Overlay */}
-          {imageLoaded && imageData.description && (
-            <div className="country-image-overlay">
-              <p className="country-image-description">
-                {imageData.description}
-              </p>
-              {imageData.attribution && (
-                <p className="country-image-attribution">
-                  {imageData.attribution}
-                </p>
-              )}
-            </div>
-          )}
-          
+          <img src={imageData.url} alt={imageData.description || `Beautiful landscape of ${country}`} onLoad={handleImageLoad} onError={handleImageError} className="country-image" style={{ opacity: imageLoaded ? 1 : 0 }}/>
         </div>
       )}
-
-      {/* Error State */}
       {!loading && error && !imageData && (
         <div className="country-image-error">
           <div className="country-image-error-content">

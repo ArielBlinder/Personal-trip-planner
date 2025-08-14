@@ -9,7 +9,6 @@ import { MAP_CONFIG } from '../utils/constants';
 import polyline from '@mapbox/polyline';
 
 
-
 // Fix for default markers in React Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -18,7 +17,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-// Renders trip details, a Leaflet map with daily polylines, and weather for the start location
 function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
   const mapRef = useRef(null);
   const routeRefs = useRef([]);
@@ -34,7 +32,6 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
     setMapReady(true);
   }, []);
 
-  // Fetch weather for loaded routes
   // Fetch current 3-day forecast for the first spot of a saved route
   const fetchWeatherForRoute = useCallback(async (routeData) => {
     if (!routeData?.spots?.length || !isLoadedRoute) {
@@ -56,22 +53,22 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
 
   // Refresh weather manually
   // Allow manual refresh of weather (only for loaded/saved routes)
-  const handleRefreshWeather = useCallback(async () => {
-    if (tripData?.spots?.length) {
-      setLoadingWeather(true);
-      try {
-        const startLocation = tripData.spots[0];
-        const weatherData = await weatherAPI.getThreeDayForecast(startLocation.lat, startLocation.lng);
-        setCurrentWeather(weatherData.forecast);
-      } catch (err) {
-        console.error('Failed to refresh weather:', err);
-      } finally {
-        setLoadingWeather(false);
-      }
-    }
-  }, [tripData]);
+  // const handleRefreshWeather = useCallback(async () => {
+  //   if (tripData?.spots?.length) {
+  //     setLoadingWeather(true);
+  //     try {
+  //       const startLocation = tripData.spots[0];
+  //       const weatherData = await weatherAPI.getThreeDayForecast(startLocation.lat, startLocation.lng);
+  //       setCurrentWeather(weatherData.forecast);
+  //     } catch (err) {
+  //       console.error('Failed to refresh weather:', err);
+  //     } finally {
+  //       setLoadingWeather(false);
+  //     }
+  //   }
+  // }, [tripData]);
 
-
+// Calculate a route for each day by using yhe waypoints
  useEffect(() => {
   if (!tripData?.spots?.length || !mapRef.current || !mapReady || !tripData.daily_info?.length)
     return;
@@ -79,33 +76,36 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
   const currentMap = mapRef.current;
 
   const fetchRouteFromGraphHopper = async (waypoints) => {
-    const points = waypoints.map(p => [p.lng, p.lat]); // Note: GraphHopper expects [lng, lat] order
+  const points = waypoints.map(p => [p.lng, p.lat]);
 
-    const body = {
-      points,
-      profile: 'foot',  // Always foot route
-      locale: 'en',
-      instructions: false,
-      points_encoded: true
-    };
-
-    const params = new URLSearchParams({
-      key: process.env.REACT_APP_GRAPHHOPPER_API_KEY
-    });
-
-    const res = await fetch(`https://graphhopper.com/api/1/route?${params}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-
-    if (!res.ok) {
-      console.error('GraphHopper routing failed:', res.status);
-      return null;
-    }
-
-    return await res.json();
+  const body = {
+    points,
+    profile: 'foot',
+    locale: 'en',
+    instructions: false,
+    points_encoded: true
   };
+
+  const params = new URLSearchParams({
+    key: process.env.REACT_APP_GRAPHHOPPER_API_KEY
+  });
+
+  const res = await fetch(`https://graphhopper.com/api/1/route?${params}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('GraphHopper routing failed:', res.status, errorText);
+    return null;
+  }
+
+  return await res.json();
+};
 
   // Decode GraphHopper-encoded polyline to Leaflet LatLngs
   const decodePolyline = (encoded) => {
@@ -118,7 +118,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
       if (!currentMap) return;
 
        // Fit map to bounds of all trip spots
-       const bounds = L.latLngBounds(tripData.spots.map(s => [s.lat, s.lng]));
+      const bounds = L.latLngBounds(tripData.spots.map(s => [s.lat, s.lng]));
       currentMap.fitBounds(bounds, { padding: MAP_CONFIG.MARKER_BOUNDS_PADDING });
 
        // Remove old polylines (cleanup before drawing new ones)
@@ -181,7 +181,6 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
 
   return (
     <div className='trip-container'>
-      {/* Trip Details */}
       {tripData && (
         <div style={{ marginBottom: '20px' }}>
           <h3>{tripData.name}</h3>
@@ -190,19 +189,11 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
           {tripData.spots_names && (
             <p><strong>Key Spots:</strong> {tripData.spots_names.join(', ')}</p>
           )}
-
-          {/* Country Image Display */}
           {tripData.country && (
             <CountryImage country={tripData.country} />
           )}
 
-          {/* Weather Display Component */}
-          <WeatherDisplay 
-            weatherData={currentWeather || tripData.weather}
-            isLoading={loadingWeather}
-            isForSavedRoute={isLoadedRoute}
-            onRefresh={isLoadedRoute ? handleRefreshWeather : null}
-          />
+          <WeatherDisplay weatherData={currentWeather || tripData.weather} isLoading={loadingWeather}/>
 
           <p><strong>Travel Plan:</strong>
             {tripData.daily_info.length > 1 ? (
@@ -220,17 +211,13 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
               </p>
             )}
           </p>
-
-          {/* Save Route Button - Only show for newly generated routes */}
           {!isLoadedRoute && onSaveClick && (
-            <div style={{ marginTop: '15px' }}>
+            <div className='trip-save-btn-container'>
               <button className='trip-save-btn' onClick={onSaveClick}>
                 💾 Save This Route
               </button>
             </div>
           )}
-
-          {/* Show indication for loaded routes */}
           {isLoadedRoute && (
             <div className="saved-route-indicator">
               This is a saved route loaded from your collection
@@ -238,8 +225,6 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
           )}
         </div>
       )}
-
-      {/* Map */}
        <div className='map-container'>
         <MapContainer center={MAP_CONFIG.DEFAULT_CENTER} zoom={MAP_CONFIG.DEFAULT_ZOOM} style={{ height: '100%', width: '100%' }} ref={mapRef} whenReady={handleMapReady}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />

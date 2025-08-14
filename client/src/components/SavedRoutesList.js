@@ -95,16 +95,10 @@ function SavedRoutesList({ onLoadRoute, refreshTrigger }) {
                   </div>
                 </div>
                 <div className="saved-route-actions">
-                  <button
-                    onClick={() => handleLoadRoute(route._id)}
-                    className="saved-route-load-btn"
-                  >
+                  <button onClick={() => handleLoadRoute(route._id)} className="saved-route-load-btn">
                     Load
                   </button>
-                  <button
-                    onClick={() => handleDeleteRoute(route._id, route.userRouteName)}
-                    className="saved-route-delete-btn"
-                  >
+                  <button onClick={() => handleDeleteRoute(route._id, route.userRouteName)} className="saved-route-delete-btn">
                     Delete
                   </button>
                 </div>

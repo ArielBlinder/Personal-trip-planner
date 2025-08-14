@@ -1,12 +1,7 @@
 import React, { memo } from 'react';
 
 // Displays a simple 3-day forecast block. Supports a loading state and optional refresh.
-const WeatherDisplay = ({ 
-  weatherData, 
-  isLoading, 
-  isForSavedRoute = false, 
-  onRefresh = null 
-}) => {
+const WeatherDisplay = ({ weatherData, isLoading }) => {
   if (!weatherData && !isLoading) {
     return (
       <div className="weather-no-data">
@@ -23,26 +18,10 @@ const WeatherDisplay = ({
         <div className="weather-header-content">
           <h4 className="weather-title">
             🌤️ Weather Forecast for the next 3 days
-            {isLoading && (
-              <span className="weather-loading-text">
-                (Loading...)
-              </span>
-            )}
           </h4>
-          {/* Optional refresh shown for saved routes when handler provided */}
-          {!isLoading && isForSavedRoute && onRefresh && (
-            <button className="weather-refresh-btn" onClick={onRefresh}>Refresh</button>
-          )}
           
           {/* Show loading state while fetching weather */}
-          {isLoading ? (
-            <div className="weather-loading-container">
-              <p className="weather-loading-message">
-                🌤️ Fetching current weather forecast...
-              </p>
-            </div>
-          ) : weatherData && weatherData.length > 0 ? (
-            /* Show weather data */
+          {!isLoading && weatherData && weatherData.length > 0 && (
             <div>
               {weatherData.map((day, index) => (
                 <div key={index} className="weather-day-item">
@@ -70,13 +49,6 @@ const WeatherDisplay = ({
                   </div>
                 </div>
               ))}
-            </div>
-          ) : (
-            /* Fallback - should rarely be seen since weather fetches automatically */
-            <div className="weather-fallback">
-              <p className="weather-fallback-message">
-                Weather forecast not available.
-              </p>
             </div>
           )}
         </div>

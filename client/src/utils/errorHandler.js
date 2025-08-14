@@ -1,8 +1,7 @@
 import { ERROR_MESSAGES } from './constants';
 
-/**
- * Centralized error handling utility
- */
+
+// Centralized error handling utility
 export class ErrorHandler {
   static handleApiError(error, defaultMessage = ERROR_MESSAGES.NETWORK) {
     console.error('API Error:', error);
@@ -53,9 +52,7 @@ export class ErrorHandler {
   }
 }
 
-/**
- * Validation helpers
- */
+// Validation helpers
 export class ValidationHelper {
   static validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
