@@ -11,6 +11,11 @@ Plan and manage hiking or cycling trips with AI-generated routes, interactive ma
 - **Weather**: 3‑day forecast for the trip area
 - **Country images**: Unsplash-powered images per country
 
+## Known issues
+
+- **AI-generated coordinates**: The AI prompt may return coordinates that are not fully accurate. As a result, some waypoints can appear slightly off on the map. If this occurs, try regenerating the route.
+
+
 ## Tech stack
 
 - **Frontend**: React 19, React Router DOM 7, React Leaflet 5
@@ -106,9 +111,7 @@ Default URLs:
 - Server: `npm start`, `npm run dev`
 - Client: `npm start`, `npm run build`, `npm test`
 
-## Known issues
 
-- **AI-generated coordinates**: The AI prompt may return coordinates that are not fully accurate. As a result, some waypoints can appear slightly off on the map. If this occurs, try regenerating the route.
 
 
 ## Security
