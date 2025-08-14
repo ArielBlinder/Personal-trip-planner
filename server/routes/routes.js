@@ -6,7 +6,7 @@ const weatherService = require('../services/weatherService');
 
 const router = express.Router();
 
-//Generate a new trip route using AI
+// Generate a new trip route using AI
 router.post('/generate', authenticateToken, async (req, res) => {
   try {
     const { country, type } = req.body;
@@ -273,7 +273,7 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-//Get specific route details
+// Get specific route details
 router.get('/:routeId', authenticateToken, async (req, res) => {
   try {
     const { routeId } = req.params;

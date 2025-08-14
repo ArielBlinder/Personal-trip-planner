@@ -68,7 +68,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
   //   }
   // }, [tripData]);
 
-// Calculate a route for each day by using yhe waypoints
+// Calculate a route for each day by using the waypoints
  useEffect(() => {
   if (!tripData?.spots?.length || !mapRef.current || !mapReady || !tripData.daily_info?.length)
     return;

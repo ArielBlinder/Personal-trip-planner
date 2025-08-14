@@ -1,9 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-/**
- * JWT Authentication Middleware
- * Verifies JWT tokens from Authorization header
- */
+// JWT Authentication Middleware
+// Verifies JWT tokens from Authorization header
 const authenticateToken = (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
@@ -58,10 +56,8 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-/**
- * Optional authentication middleware
- * Continues even if token is invalid (for optional auth routes)
- */
+// Optional authentication middleware
+// Continues even if token is invalid (for optional auth routes)
 const optionalAuth = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -85,9 +81,7 @@ const optionalAuth = (req, res, next) => {
   });
 };
 
-/**
- * Generate JWT token
- */
+// Generate JWT token
 const generateToken = (user) => {
   const payload = {
     userId: user._id,
@@ -102,9 +96,7 @@ const generateToken = (user) => {
   });
 };
 
-/**
- * Verify JWT token manually (for utility purposes)
- */
+// Verify JWT token manually (for utility purposes)
 const verifyToken = (token) => {
   try {
     return jwt.verify(token, process.env.JWT_SECRET);

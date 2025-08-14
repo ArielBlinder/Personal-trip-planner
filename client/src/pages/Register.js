@@ -8,6 +8,7 @@ function Register() {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
+  // Create a new user account via the API and navigate to login on success
   const handleRegister = async () => {
     const res = await fetch('http://localhost:5000/register', {
       method: 'POST',
@@ -27,6 +28,7 @@ function Register() {
   return (
     <div className="container">
       <h2>Register</h2>
+      {/* Basic form inputs (no client-side validation for brevity) */}
       <input className='input' placeholder="Username" onChange={e => setUsername(e.target.value)} />
       <br />
       <input className='input' placeholder="Email" onChange={e => setEmail(e.target.value)} />

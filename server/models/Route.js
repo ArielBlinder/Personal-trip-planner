@@ -1,3 +1,4 @@
+// Mongoose schema for saved trip routes 
 const mongoose = require('mongoose');
 
 const spotSchema = new mongoose.Schema({

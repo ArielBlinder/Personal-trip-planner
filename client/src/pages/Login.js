@@ -8,6 +8,7 @@ function Login() {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
+  // Authenticate user, store JWT, and redirect to dashboard
   const handleLogin = async () => {
     const res = await fetch('http://localhost:5000/login', {
       method: 'POST',

@@ -5,10 +5,8 @@ const unsplashService = require('../services/unsplashService');
 
 const router = express.Router();
 
-/**
- * GET /weather
- * Get weather forecast for given coordinates
- */
+// GET /weather
+// Get weather forecast for given coordinates
 router.get('/weather', authenticateToken, async (req, res) => {
   try {
     const { lat, lng } = req.query;
@@ -77,10 +75,8 @@ router.get('/weather', authenticateToken, async (req, res) => {
   }
 });
 
-/**
- * GET /country-image
- * Get image for a specific country
- */
+// GET /country-image
+// Get image for a specific country
 router.get('/country-image', authenticateToken, async (req, res) => {
   try {
     const { country } = req.query;
@@ -127,10 +123,8 @@ router.get('/country-image', authenticateToken, async (req, res) => {
   }
 });
 
-/**
- * GET /health
- * Health check for external services (optional auth)
- */
+// GET /health
+// Health check for external services (optional auth)
 router.get('/health', async (req, res) => {
   const healthStatus = {
     timestamp: new Date().toISOString(),
@@ -160,10 +154,8 @@ router.get('/health', async (req, res) => {
   res.status(allHealthy ? 200 : 503).json(healthStatus);
 });
 
-/**
- * GET /weather/fallback
- * Get fallback weather data (for testing)
- */
+// GET /weather/fallback
+// Get fallback weather data (for testing)
 router.get('/weather/fallback', authenticateToken, (req, res) => {
   res.json({
     message: 'Fallback weather data',
@@ -173,10 +165,8 @@ router.get('/weather/fallback', authenticateToken, (req, res) => {
   });
 });
 
-/**
- * GET /image/fallback
- * Get fallback image data (for testing)
- */
+// GET /image/fallback
+// Get fallback image data (for testing)
 router.get('/image/fallback', authenticateToken, (req, res) => {
   const { country = 'landscape' } = req.query;
   

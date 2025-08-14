@@ -1,20 +1,16 @@
 const axios = require('axios');
 
-/**
- * Unsplash Service for fetching country-characteristic images
- * Provides images that represent the character and landscape of a country
- */
+// Unsplash Service for fetching country-characteristic images
+// Provides images that represent the character and landscape of a country
 class UnsplashService {
   constructor() {
     this.apiKey = process.env.UNSPLASH_ACCESS_KEY;
     this.baseUrl = 'https://api.unsplash.com';
   }
 
-  /**
-   * Get a characteristic image for a country
-   * @param {string} country - Country name
-   * @returns {Promise<Object>} Image data with URL and attribution
-   */
+  // Get a characteristic image for a country
+  // @param {string} country - Country name
+  // @returns {Promise<Object>} Image data with URL and attribution
   async getCountryImage(country) {
     if (!this.apiKey) {
       console.warn('Unsplash API key not configured, using fallback image');
@@ -64,9 +60,7 @@ class UnsplashService {
     }
   }
 
-  /**
-   * Fallback image when Unsplash API is unavailable
-   */
+  // Fallback image when Unsplash API is unavailable
   getFallbackImage(country) {
     return {
       url: `https://source.unsplash.com/800x400/?${encodeURIComponent(country)},landscape`,
@@ -79,9 +73,7 @@ class UnsplashService {
     };
   }
 
-  /**
-   * Get multiple images for a country (for future use)
-   */
+  // Get multiple images for a country (for future use)
   async getCountryImages(country, count = 3) {
     if (!this.apiKey) {
       return Array(count).fill(null).map(() => this.getFallbackImage(country));

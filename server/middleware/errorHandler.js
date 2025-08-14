@@ -1,19 +1,13 @@
-/**
- * Error handling middleware for the application
- */
+// Error handling middleware for the application
 
-/**
- * Not Found middleware - handles 404 errors
- */
+// Not Found middleware - handles 404 errors
 const notFound = (req, res, next) => {
   const error = new Error(`Not Found - ${req.originalUrl}`);
   res.status(404);
   next(error);
 };
 
-/**
- * Global error handler middleware
- */
+// Global error handler middleware
 const errorHandler = (err, req, res, next) => {
   // Default to 500 server error
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
@@ -74,9 +68,7 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-/**
- * Request timeout middleware
- */
+// Request timeout middleware
 const requestTimeout = (timeoutMs = 30000) => {
   return (req, res, next) => {
     req.setTimeout(timeoutMs, () => {
@@ -88,9 +80,7 @@ const requestTimeout = (timeoutMs = 30000) => {
   };
 };
 
-/**
- * Rate limiting error handler
- */
+// Rate limiting error handler
 const rateLimitHandler = (req, res) => {
   res.status(429).json({
     message: 'Too many requests from this IP, please try again later',
@@ -104,18 +94,14 @@ const rateLimitHandler = (req, res) => {
   });
 };
 
-/**
- * Async error wrapper - catches async errors and passes to error handler
- */
+// Async error wrapper - catches async errors and passes to error handler
 const asyncHandler = (fn) => {
   return (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 };
 
-/**
- * Validation error formatter
- */
+// Validation error formatter
 const formatValidationError = (errors) => {
   return errors.map(error => ({
     field: error.param,
@@ -124,9 +110,7 @@ const formatValidationError = (errors) => {
   }));
 };
 
-/**
- * Database connection error handler
- */
+// Database connection error handler
 const handleDatabaseError = (error) => {
   console.error('Database connection error:', error);
   

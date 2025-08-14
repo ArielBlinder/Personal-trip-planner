@@ -5,10 +5,8 @@ const { generateToken, authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-/**
- * POST /register
- * Register a new user
- */
+// POST /register
+// Register a new user
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -93,10 +91,8 @@ router.post('/register', async (req, res) => {
   }
 });
 
-/**
- * POST /login
- * Authenticate user and return JWT token
- */
+// POST /login
+// Authenticate user and return JWT token
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -152,10 +148,8 @@ router.post('/login', async (req, res) => {
   }
 });
 
-/**
- * GET /profile
- * Get current user profile (protected route)
- */
+// GET /profile
+// Get current user profile (protected route)
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select('-password');
@@ -185,10 +179,8 @@ router.get('/profile', authenticateToken, async (req, res) => {
   }
 });
 
-/**
- * POST /logout
- * Logout user (client-side token removal)
- */
+// POST /logout
+// Logout user (client-side token removal)
 router.post('/logout', authenticateToken, (req, res) => {
   // In a stateless JWT system, logout is handled client-side
   // This endpoint is mainly for consistency and potential future token blacklisting
@@ -197,10 +189,8 @@ router.post('/logout', authenticateToken, (req, res) => {
   });
 });
 
-/**
- * GET /verify
- * Verify if current token is valid
- */
+// GET /verify
+// Verify if current token is valid
 router.get('/verify', authenticateToken, (req, res) => {
   res.json({
     message: 'Token is valid',

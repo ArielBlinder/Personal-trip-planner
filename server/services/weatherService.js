@@ -1,21 +1,17 @@
 const axios = require('axios');
 
-/**
- * Weather Service using OpenWeatherMap API
- * Provides 3-day weather forecast starting from tomorrow
- */
+// Weather Service using OpenWeatherMap API
+// Provides 3-day weather forecast starting from tomorrow
 class WeatherService {
   constructor() {
     this.apiKey = process.env.OPENWEATHER_API_KEY;
     this.baseUrl = 'https://api.openweathermap.org/data/2.5';
   }
 
-  /**
-   * Get weather forecast for the next 3 days starting tomorrow
-   * @param {number} lat - Latitude
-   * @param {number} lng - Longitude
-   * @returns {Promise<Array>} Array of 3 weather objects
-   */
+  // Get weather forecast for the next 3 days starting tomorrow
+  // @param {number} lat - Latitude
+  // @param {number} lng - Longitude
+  // @returns {Promise<Array>} Array of 3 weather objects
   async getThreeDayForecast(lat, lng) {
     if (!this.apiKey) {
       console.warn('OpenWeather API key not configured, using fallback weather');
@@ -45,10 +41,8 @@ class WeatherService {
     }
   }
 
-  /**
-   * Extract 3-day forecast starting from tomorrow
-   * Takes the midday forecast (12:00) for each day
-   */
+  // Extract 3-day forecast starting from tomorrow
+  // Takes the midday forecast (12:00) for each day
   extractThreeDayForecast(forecasts) {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -104,9 +98,7 @@ class WeatherService {
     return threeDayForecasts.slice(0, 3);
   }
 
-  /**
-   * Capitalize weather description
-   */
+  // Capitalize weather description
   capitalizeDescription(description) {
     return description
       .split(' ')
@@ -114,9 +106,7 @@ class WeatherService {
       .join(' ');
   }
 
-  /**
-   * Fallback weather when API is unavailable
-   */
+  // Fallback weather when API is unavailable
   getFallbackWeather() {
     return [
       {
@@ -143,9 +133,7 @@ class WeatherService {
     ];
   }
 
-  /**
-   * Get current weather for a location
-   */
+  // Get current weather for a location
   async getCurrentWeather(lat, lng) {
     if (!this.apiKey) {
       return {
