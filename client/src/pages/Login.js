@@ -18,7 +18,6 @@ function Login() {
     const data = await res.json();
     if (data.token) {
       localStorage.setItem('token', data.token);
-      // Store user info as well
       localStorage.setItem('user', JSON.stringify(data.user));
       const user = jwtDecode(data.token);
       setMessage(`Welcome ${user.username}`);
@@ -35,8 +34,8 @@ function Login() {
       <br />
       <input className='input' placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
       <br />
-      <button className='btn-secondary' onClick={handleLogin}>Login</button>
-      <button className='btn-secondary' onClick={() => navigate('/register')} style={{marginLeft: "20px"}}>Register</button>
+      <button className='primary-action-btn' onClick={handleLogin}>Login</button>
+      <button className='primary-action-btn' onClick={() => navigate('/register')} style={{marginLeft: "20px"}}>Register</button>
       <br />
       <p>{message}</p>
     </div>

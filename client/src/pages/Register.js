@@ -33,7 +33,7 @@ function Register() {
       <br />
       <input className='input' placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
       <br />
-      <button className='btn-secondary' onClick={handleRegister}>Create New User</button>
+      <button className='primary-action-btn' onClick={handleRegister}>Create New User</button>
       <br />
       <br />
       <p>{message}</p>

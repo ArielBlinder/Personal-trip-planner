@@ -31,7 +31,6 @@ function SavedRoutes() {
                     <button className='back-btn' onClick={handleBackToList}>← Back to Routes List</button>
                 )}
             </div>
-
             {!selectedRoute ? (
                 <div>
                     <p> Here are all your saved routes. Click on any route to view its details and map.</p>

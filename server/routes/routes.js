@@ -6,10 +6,7 @@ const weatherService = require('../services/weatherService');
 
 const router = express.Router();
 
-/**
- * POST /generate
- * Generate a new trip route using AI
- */
+//Generate a new trip route using AI
 router.post('/generate', authenticateToken, async (req, res) => {
   try {
     const { country, type } = req.body;
@@ -51,71 +48,71 @@ router.post('/generate', authenticateToken, async (req, res) => {
     
     *COORDINATE ACCURACY IS CRITICAL*: You must provide precise, real-world coordinates that correspond to actual ${type === 'hiking' ? 'trails, trailheads, and hiking waypoints' : 'roads, towns, and cycling routes'}. Inaccurate coordinates will break the mapping system.
     
-Trip Requirements:
+    Trip Requirements:
     ${tripCriteria[type]}
-    
+        
 
-**Coordinate Verification (MANDATORY):**
-1. For every place name (trailhead, junction, scenic point, town, etc.), search on **Wikidata**.
-2. Find the exact matching Wikidata item (QID) that represents the real location.
-3. Extract the official **coordinate location (P625)**.
-4. Only use verified points that exist in Wikidata — if not available, use the closest **mapped** point with a QID.
-5. DO NOT include locations that don't exist in Wikidata or on the map.
+    **Coordinate Verification (MANDATORY):**
+    1. For every place name (trailhead, junction, scenic point, town, etc.), search on **Wikidata**.
+    2. Find the exact matching Wikidata item (QID) that represents the real location.
+    3. Extract the official **coordinate location (P625)**.
+    4. Only use verified points that exist in Wikidata — if not available, use the closest **mapped** point with a QID.
+    5. DO NOT include locations that don't exist in Wikidata or on the map.
 
-    **Response Must Include:**
-- Total trek distance.
-- General description of the trek.
-- A complete ordered list of **ALL waypoints** with highly accurate coordinates.
-- Dense intermediate waypoints every **1–2km** to guide routing properly.
-- For hiking: Use trailheads, huts, trail junctions, markers.
-- For cycling: Use towns, road crossings, scenic road points.
-- Ensure ALL coordinates are inside the specified **country** and fit the activity type.
-- For each day:
-  - A short summary (start, end, overnight location)
-  - Ordered list of locations visited (with coordinates)
+        **Response Must Include:**
+    - Total trek distance.
+    - General description of the trek.
+    - A complete ordered list of **ALL waypoints** with highly accurate coordinates.
+    - For each day limit the maximum waypoints to 4.
+    - For hiking: Use trailheads, huts, trail junctions, markers.
+    - For cycling: Use towns, road crossings, scenic road points.
+    - Ensure ALL coordinates are inside the specified **country** and fit the activity type.
+    - For each day:
+      - A short summary (start, end, overnight location)
+      - Ordered list of locations visited (with coordinates)
 
----
+    ---
 
-    
+        
 
-{
-    "name": "Name of the trek",
-    "description": "1-2 paragraphs about the place, how many days, total distance, total distance per day(only if multiple days)",
-    "logistics": "practical info: starting point, access, transport",
-    "spots_names": ["Place1", "Place2", ...],
-    "spots": [
-        { "name": "Specific Trail Name or Landmark", "lat": 44.123456, "lng": 1.567890 },
-        { "name": "Exact Waypoint or Junction", "lat": 44.456789, "lng": 1.789012 }
-    ],
-    "daily_info": [
-        {
-            "day": 1,
-            "description": "Short description of this day's hike, where it starts and ends",
-            "day_locations": [
-                { "name": "Trailhead Parking", "lat": 44.123456, "lng": 1.567890 },
-                { "name": "Trail Junction", "lat": 44.456789, "lng": 1.789012 },
-                { "name": "Mountain Hut", "lat": 44.456123, "lng": 1.789345 }
-            ],
-            "distance_km": 12
-        },
-        {
-            "day": 2,
-            "description": "Short description of this day's hike, where it starts and ends",
-            "day_locations": [
-                { "name": "Valley Viewpoint", "lat": 44.123456, "lng": 1.567890 },
-                { "name": "Forest Trail", "lat": 44.456789, "lng": 1.789012 },
-                { "name": "Summit Peak", "lat": 44.456123, "lng": 1.789345 }
-            ],
-            "distance_km": 9
-        }
-    ],
-    "total_distance_km": 21,
-    "country": "${country}",
-    "type": "${type}"
-}
+    {
+        "name": "Name of the trek",
+        "description": "1-2 paragraphs about the place, how many days, total distance, total distance per day(only if multiple days)",
+        "logistics": "practical info: starting point, access, transport",
+        "spots_names": ["Place1", "Place2", ...],
+        "spots": [
+            { "name": "Specific Trail Name or Landmark", "lat": 44.123456, "lng": 1.567890 },
+            { "name": "Exact Waypoint or Junction", "lat": 44.456789, "lng": 1.789012 }
+        ],
+        "daily_info": [
+            {
+                "day": 1,
+                "description": "Short description of this day's hike, where it starts and ends",
+                "day_locations": [
+                    { "name": "Trailhead Parking", "lat": 44.123456, "lng": 1.567890 },
+                    { "name": "Trail Junction", "lat": 44.456789, "lng": 1.789012 },
+                    { "name": "Mountain Hut", "lat": 44.456123, "lng": 1.789345 }
+                ],
+                "distance_km": 12
+            },
+            {
+                "day": 2,
+                "description": "Short description of this day's hike, where it starts and ends",
+                "day_locations": [
+                    { "name": "Valley Viewpoint", "lat": 44.123456, "lng": 1.567890 },
+                    { "name": "Forest Trail", "lat": 44.456789, "lng": 1.789012 },
+                    { "name": "Summit Peak", "lat": 44.456123, "lng": 1.789345 }
+                ],
+                "distance_km": 9
+            }
+        ],
+        "total_distance_km": 21,
+        "country": "${country}",
+        "type": "${type}"
+    }
 
-    **IMPORTANT:** Return ONLY a JSON object in the exact structure below. DO NOT include explanations.
-`;
+        **IMPORTANT:** Return ONLY a JSON object in the exact structure below. DO NOT include explanations.
+    `;
 
     // Call AI service
     const groqResponse = await axios.post(
@@ -191,10 +188,7 @@ Trip Requirements:
   }
 });
 
-/**
- * POST /save
- * Save a generated route to user's collection
- */
+// Save a generated route to user's collection
 router.post('/save', authenticateToken, async (req, res) => {
   try {
     const { routeData, userRouteName, userRouteDescription } = req.body;
@@ -260,10 +254,8 @@ router.post('/save', authenticateToken, async (req, res) => {
   }
 });
 
-/**
- * GET /
- * Get all saved routes for the authenticated user
- */
+
+// Get all saved routes for the authenticated user
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const routes = await Route.find({ userId: req.user.userId })
@@ -281,10 +273,7 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-/**
- * GET /:routeId
- * Get specific route details
- */
+//Get specific route details
 router.get('/:routeId', authenticateToken, async (req, res) => {
   try {
     const { routeId } = req.params;
@@ -320,10 +309,7 @@ router.get('/:routeId', authenticateToken, async (req, res) => {
   }
 });
 
-/**
- * DELETE /:routeId
- * Delete a saved route
- */
+// Delete a saved route
 router.delete('/:routeId', authenticateToken, async (req, res) => {
   try {
     const { routeId } = req.params;

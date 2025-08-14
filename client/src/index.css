@@ -33,22 +33,7 @@ body {
   margin-top: 4px;
 }
 
-.btn-primary {
-  background-color: hsl(134, 61%, 41%);
-  border: none;
-  padding: 10px 20px;
-  color: white;
-  font-weight: 600;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: hsl(134, 61%, 31%);
-}
-
-.btn-secondary {
+.primary-action-btn {
   background-color: hsl(211, 100%, 50%);
   border: none;
   padding: 10px 20px;
@@ -59,11 +44,11 @@ body {
   transition: background-color 0.3s ease;
 }
 
-.btn-secondary:hover {
+.primary-action-btn:hover {
   background-color: hsl(211, 100%, 35%);
 }
 
-.logout {
+.logout-btn {
   background-color: hsl(354, 61%, 56%);
   border: none;
   padding: 10px 20px;
@@ -114,7 +99,7 @@ label {
   background-color: hsl(210, 20%, 98%);
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.05);
+  box-shadow: 0 0 6px hsla(0, 0%, 0%, 0.05);
 }
 
 .trip-container h3 {
@@ -139,6 +124,10 @@ label {
 .trip-container li {
   margin-bottom: 8px;
   font-size: 0.95rem;
+}
+
+.trip-save-btn-container{
+  margin-top: 15px;
 }
 
 .trip-save-btn {
@@ -190,36 +179,12 @@ label {
   text-decoration: underline;
 }
 
-/* Country Image Component Styles */
 .country-image-container {
   margin-bottom: 20px;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   background-color: #f8f9fa;
-}
-
-.country-image-loading {
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-}
-
-.country-image-loading-content {
-  text-align: center;
-  color: #6c757d;
-}
-
-.country-image-loading-icon {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
-.country-image-loading-text {
-  margin: 0;
 }
 
 .country-image-wrapper {
@@ -247,32 +212,6 @@ label {
   transition: opacity 0.3s ease;
 }
 
-.country-image-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(transparent, rgba(93, 93, 93, 0.7));
-  color: rgba(255, 255, 255, 0.5);
-  padding: 20px 15px 15px;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.country-image-description {
-  margin: 0;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.country-image-attribution {
-  margin: 5px 0 0 0;
-  font-size: 12px;
-  opacity: 0.8;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  color: #d1ecf1;
-}
-
 .country-image-error {
   height: 300px;
   display: flex;
@@ -297,7 +236,6 @@ label {
   margin: 0;
 }
 
-/* Weather Display Component Styles */
 .weather-container {
   margin-bottom: 15px;
   padding: 15px;
@@ -318,27 +256,7 @@ label {
 
 .weather-title {
   margin: 0 0 10px 0;
-  color: #495057;
-}
-
-.weather-loading-text {
-  font-size: 12px;
-  font-weight: normal;
-  color: #007bff;
-  margin-left: 10px;
-}
-
-.weather-loading-container {
-  padding: 20px;
-  background-color: #e7f3ff;
-  border: 1px solid #b3d9ff;
-  border-radius: 4px;
-  text-align: center;
-}
-
-.weather-loading-message {
-  margin: 0;
-  color: #0056b3;
+  color: hsl(210, 9%, 31%);
 }
 
 .weather-day-item {
@@ -357,38 +275,25 @@ label {
 }
 
 .weather-day-label {
-  color: #495057;
+  color: hsl(210, 9%, 31%);
 }
 
 .weather-temperature {
   margin-left: 8px;
   font-size: 16px;
   font-weight: bold;
-  color: #007bff;
+  color: hsl(211, 100%, 50%);
 }
 
 .weather-description {
   margin-left: 8px;
-  color: #6c757d;
+  color: hsl(208, 7%, 46%);
 }
 
 .weather-day-details {
   text-align: right;
   font-size: 12px;
-  color: #6c757d;
-}
-
-.weather-fallback {
-  padding: 15px;
-  background-color: #f8f9fa;
-  border: 1px solid hsl(210, 13.80%, 88.60%);
-  border-radius: 4px;
-  text-align: center;
-}
-
-.weather-fallback-message {
-  margin: 0;
-  color: #6c757d;
+  color: hsl(208, 7%, 46%);
 }
 
 .weather-no-data {
@@ -404,16 +309,15 @@ label {
   color: hsl(210, 13.80%, 88.60%);
 }
 
-/* Saved Routes List Component Styles */
 .saved-routes-container {
   margin-bottom: 20px;
   padding: 20px;
-  border: 1px solid #ddd;
+  border: 1px solid hsl(0, 0%, 87%);
   border-radius: 5px;
 }
 
 .saved-routes-empty {
-  color: #666;
+  color: hsl(0, 0%, 40%);
   font-style: italic;
 }
 
@@ -424,10 +328,10 @@ label {
 
 .saved-route-item {
   padding: 15px;
-  border: 1px solid #eee;
+  border: 1px solid hsl(0, 0%, 93%);
   border-radius: 5px;
   margin-bottom: 10px;
-  background-color: #f9f9f9;
+  background-color: hsl(0, 0%, 98%);
 }
 
 .saved-route-content {
@@ -442,18 +346,18 @@ label {
 
 .saved-route-name {
   margin: 0 0 5px 0;
-  color: #333;
+  color: hsl(0, 0%, 20%);
 }
 
 .saved-route-description {
   margin: 0 0 5px 0;
-  color: #666;
+  color: hsl(0, 0%, 40%);
   font-size: 14px;
 }
 
 .saved-route-meta {
   font-size: 12px;
-  color: #888;
+  color: hsl(0, 0%, 53%);
 }
 
 .saved-route-actions {
@@ -465,7 +369,7 @@ label {
 .saved-route-load-btn {
   padding: 5px 10px;
   font-size: 12px;
-  background-color: #28a745;
+  background-color: hsl(134, 61%, 41%);
   color: white;
   border: none;
   border-radius: 3px;
@@ -473,13 +377,13 @@ label {
 }
 
 .saved-route-load-btn:hover {
-  background-color: #218838;
+  background-color: hsl(133, 61%, 33%);
 }
 
 .saved-route-delete-btn {
   padding: 5px 10px;
   font-size: 12px;
-  background-color: #dc3545;
+  background-color: hsl(354, 70%, 54%);
   color: white;
   border: none;
   border-radius: 3px;
@@ -487,21 +391,34 @@ label {
 }
 
 .saved-route-delete-btn:hover {
-  background-color: #c82333;
+  background-color: hsl(354, 70%, 46%);
 }
 
 .saved-routes-error {
   color: red;
 }
 
-/* Save Route Modal Component Styles */
+.saved-routes-retry-btn {
+  padding: 5px 10px;
+  font-size: 12px;
+  background-color: hsl(354, 70%, 54%);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.saved-routes-retry-btn:hover {
+  background-color: hsl(354, 70%, 44%);
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: hsla(0, 0%, 0%, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -514,10 +431,6 @@ label {
   border-radius: 8px;
   width: 400px;
   max-width: 90vw;
-}
-
-.modal-title {
-  margin-top: 0;
 }
 
 .modal-field {
@@ -537,7 +450,7 @@ label {
 .modal-input {
   width: 100%;
   padding: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid hsl(0, 0%, 87%);
   border-radius: 4px;
   font-size: 14px;
 }
@@ -545,7 +458,7 @@ label {
 .modal-textarea {
   width: 100%;
   padding: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid hsl(0, 0%, 87%);
   border-radius: 4px;
   font-size: 14px;
   resize: vertical;
@@ -555,7 +468,7 @@ label {
   color: red;
   margin-bottom: 15px;
   padding: 10px;
-  background-color: #ffebee;
+  background-color: hsl(351, 100%, 96%);
   border-radius: 4px;
   font-size: 14px;
 }
@@ -568,14 +481,14 @@ label {
 
 .modal-cancel-btn {
   padding: 10px 20px;
-  border: 1px solid #ddd;
+  border: 1px solid hsl(0, 0%, 87%);
   background-color: white;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .modal-cancel-btn:hover {
-  background-color: #f8f9fa;
+  background-color: hsl(210, 17%, 98%);
 }
 
 .modal-cancel-btn:disabled {
@@ -585,7 +498,7 @@ label {
 
 .modal-save-btn {
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: hsl(211, 100%, 50%);
   color: white;
   border: none;
   border-radius: 4px;
@@ -593,10 +506,10 @@ label {
 }
 
 .modal-save-btn:hover {
-  background-color: #0056b3;
+  background-color: hsl(211, 100%, 35%);
 }
 
 .modal-save-btn:disabled {
-  background-color: #ccc;
+  background-color: hsl(0, 0%, 80%);
   cursor: not-allowed;
 }
