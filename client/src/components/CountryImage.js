@@ -23,7 +23,6 @@ const CountryImage = ({ country }) => {
     } catch (err) {
       console.error('Failed to fetch country image:', err);
       setError(err.message);
-      // Set fallback image data
       setImageData({
         url: `https://source.unsplash.com/800x400/?${encodeURIComponent(countryName)},landscape`
       });
@@ -56,7 +55,6 @@ const CountryImage = ({ country }) => {
 
   return (
     <div className="country-image-container">
-      {/* Image Display */}
       {!loading && imageData && (
         <div className="country-image-wrapper">
           <img src={imageData.url} alt={imageData.description || `Beautiful landscape of ${country}`} onLoad={handleImageLoad} onError={handleImageError} className="country-image" style={{ opacity: imageLoaded ? 1 : 0 }}/>

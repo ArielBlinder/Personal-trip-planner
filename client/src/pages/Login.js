@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import { API_ENDPOINTS } from '../utils/constants';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -10,7 +11,7 @@ function Login() {
 
   // Authenticate user, store JWT, and redirect to dashboard
   const handleLogin = async () => {
-    const res = await fetch('http://localhost:5000/login', {
+    const res = await fetch(`${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),

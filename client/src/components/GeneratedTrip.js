@@ -51,22 +51,7 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
     }
   }, [isLoadedRoute]);
 
-  // Refresh weather manually
-  // Allow manual refresh of weather (only for loaded/saved routes)
-  // const handleRefreshWeather = useCallback(async () => {
-  //   if (tripData?.spots?.length) {
-  //     setLoadingWeather(true);
-  //     try {
-  //       const startLocation = tripData.spots[0];
-  //       const weatherData = await weatherAPI.getThreeDayForecast(startLocation.lat, startLocation.lng);
-  //       setCurrentWeather(weatherData.forecast);
-  //     } catch (err) {
-  //       console.error('Failed to refresh weather:', err);
-  //     } finally {
-  //       setLoadingWeather(false);
-  //     }
-  //   }
-  // }, [tripData]);
+
 
 // Calculate a route for each day by using the waypoints
  useEffect(() => {
@@ -86,11 +71,8 @@ function GeneratedTrip({ tripData, isLoadedRoute, onSaveClick }) {
     points_encoded: true
   };
 
-  const params = new URLSearchParams({
-    key: process.env.REACT_APP_GRAPHHOPPER_API_KEY
-  });
 
-  const res = await fetch(`https://graphhopper.com/api/1/route?${params}`, {
+  const res = await fetch(`https://graphhopper.com/api/1/route?key=${process.env.REACT_APP_GRAPHHOPPER_API_KEY}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

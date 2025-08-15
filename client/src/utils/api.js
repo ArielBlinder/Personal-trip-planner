@@ -4,7 +4,6 @@ import { ErrorHandler } from './errorHandler';
 
 const BASE_URL = API_ENDPOINTS.BASE_URL;
 
-// Get auth headers with JWT token
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
   return {
@@ -13,7 +12,6 @@ const getAuthHeaders = () => {
   };
 };
 
-// Handle API responses with improved error handling
 const handleResponse = async (response) => {
   if (!response.ok) {
     let errorMessage = ERROR_MESSAGES.NETWORK;
@@ -25,31 +23,22 @@ const handleResponse = async (response) => {
     }
     throw new Error(errorMessage);
   }
-  
   return response.json();
 };
 
-// Route Management API calls
 export const routeAPI = {
-  // Save a route
   saveRoute: async (routeData, userRouteName, userRouteDescription = '') => {
     try {
       const response = await fetch(`${BASE_URL}${API_ENDPOINTS.ROUTES.SAVE}`, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({
-          routeData,
-          userRouteName,
-          userRouteDescription
-        })
+        body: JSON.stringify({ routeData, userRouteName, userRouteDescription })
       });
       return handleResponse(response);
     } catch (error) {
       throw new Error(ErrorHandler.handleRouteError(error, 'save'));
     }
   },
-
-  // Get all saved routes for the user
   getSavedRoutes: async () => {
     try {
       const response = await fetch(`${BASE_URL}${API_ENDPOINTS.ROUTES.GET_ALL}`, {
@@ -60,8 +49,6 @@ export const routeAPI = {
       throw new Error(ErrorHandler.handleRouteError(error, 'load'));
     }
   },
-
-  // Get specific route details
   getRoute: async (routeId) => {
     try {
       const response = await fetch(`${BASE_URL}${API_ENDPOINTS.ROUTES.GET_ONE}/${routeId}`, {
@@ -72,8 +59,6 @@ export const routeAPI = {
       throw new Error(ErrorHandler.handleRouteError(error, 'load'));
     }
   },
-
-  // Delete a route
   deleteRoute: async (routeId) => {
     try {
       const response = await fetch(`${BASE_URL}${API_ENDPOINTS.ROUTES.DELETE}/${routeId}`, {
@@ -87,9 +72,7 @@ export const routeAPI = {
   }
 };
 
-// Authentication API calls
 export const authAPI = {
-  // Generate route (existing functionality)
   generateRoute: async (country, type) => {
     try {
       const response = await fetch(`${BASE_URL}${API_ENDPOINTS.ROUTES.GENERATE}`, {
@@ -102,8 +85,6 @@ export const authAPI = {
       throw new Error(ErrorHandler.handleTripGenerationError(error));
     }
   },
-
-  // Get protected user data
   getProtectedData: async () => {
     try {
       const response = await fetch(`${BASE_URL}${API_ENDPOINTS.AUTH.PROTECTED}`, {
@@ -116,9 +97,7 @@ export const authAPI = {
   }
 };
 
-// Weather API calls
 export const weatherAPI = {
-  // Get 3-day weather forecast
   getThreeDayForecast: async (lat, lng) => {
     try {
       const response = await fetch(`${BASE_URL}${API_ENDPOINTS.WEATHER}?lat=${lat}&lng=${lng}`, {
@@ -131,9 +110,7 @@ export const weatherAPI = {
   }
 };
 
-// Country Image API calls
 export const imageAPI = {
-  // Get country characteristic image
   getCountryImage: async (country) => {
     try {
       const response = await fetch(`${BASE_URL}${API_ENDPOINTS.COUNTRY_IMAGE}?country=${encodeURIComponent(country)}`, {

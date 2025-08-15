@@ -6,31 +6,14 @@ const weatherService = require('../services/weatherService');
 
 const router = express.Router();
 
-// Generate a new trip route using AI
-router.post('/generate', authenticateToken, async (req, res) => {
+// generate trip (minimal validation)
+router.post('/generate', authenticateToken, async (req, res, next) => {
   try {
-    const { country, type } = req.body;
+    const { country, type } = req.body || {};
+    if (!country || !type) return res.status(400).json({ message: 'country and type are required' });
 
-    // Input validation
-    if (!country || !type) {
-      return res.status(400).json({ 
-        message: 'Country and type are required',
-        error: 'MISSING_PARAMETERS'
-      });
-    }
-
-    // Validate trip type
-    const validTypes = ['hiking', 'cycling'];
-    if (!validTypes.includes(type)) {
-      return res.status(400).json({ 
-        message: 'Invalid trip type. Must be hiking or cycling',
-        error: 'INVALID_TYPE'
-      });
-    }
-
-    // Trip criteria definitions
     const tripCriteria = {
-      hiking: `The trek must be a **round trip**: it starts and ends at the same location.
+      hiking: `The trek must be a *round trip*: it starts and ends at the same location.
         The total distance per day should be between 5 and 15 kilometers.
         The trek can be one day or multiple days, but each day must be within this range.
         IMPORTANT: Hiking routes should prioritize trails, paths, gravel roads, and offroad routes suitable for hiking. 
@@ -43,30 +26,30 @@ router.post('/generate', authenticateToken, async (req, res) => {
         The maximum distance per day is 60 kilometers.`
     };
 
-    // Build AI prompt
-    const prompt = `Create a detailed ${type} trip in ${country} that meets *all* the following criteria.
+
+    const prompt = `Create a detailed ${type} trip in ${country} that meets all the following criteria.
     
-    *COORDINATE ACCURACY IS CRITICAL*: You must provide precise, real-world coordinates that correspond to actual ${type === 'hiking' ? 'trails, trailheads, and hiking waypoints' : 'roads, towns, and cycling routes'}. Inaccurate coordinates will break the mapping system.
+    COORDINATE ACCURACY IS CRITICAL: You must provide precise, real-world coordinates that correspond to actual ${type === 'hiking' ? 'trails, trailheads, and hiking waypoints' : 'roads, towns, and cycling routes'}. Inaccurate coordinates will break the mapping system.
     
     Trip Requirements:
     ${tripCriteria[type]}
         
 
-    **Coordinate Verification (MANDATORY):**
-    1. For every place name (trailhead, junction, scenic point, town, etc.), search on **Wikidata**.
+    *Coordinate Verification (MANDATORY):*
+    1. For every place name (trailhead, junction, scenic point, town, etc.), search on *Wikidata*.
     2. Find the exact matching Wikidata item (QID) that represents the real location.
-    3. Extract the official **coordinate location (P625)**.
-    4. Only use verified points that exist in Wikidata — if not available, use the closest **mapped** point with a QID.
+    3. Extract the official *coordinate location (P625)*.
+    4. Only use verified points that exist in Wikidata — if not available, use the closest *mapped* point with a QID.
     5. DO NOT include locations that don't exist in Wikidata or on the map.
 
-        **Response Must Include:**
+        *Response Must Include:*
     - Total trek distance.
     - General description of the trek.
-    - A complete ordered list of **ALL waypoints** with highly accurate coordinates.
+    - A complete ordered list of *ALL waypoints* with highly accurate coordinates.
     - For each day limit the maximum waypoints to 4.
     - For hiking: Use trailheads, huts, trail junctions, markers.
     - For cycling: Use towns, road crossings, scenic road points.
-    - Ensure ALL coordinates are inside the specified **country** and fit the activity type.
+    - Ensure ALL coordinates are inside the specified *country* and fit the activity type.
     - For each day:
       - A short summary (start, end, overnight location)
       - Ordered list of locations visited (with coordinates)
@@ -111,119 +94,40 @@ router.post('/generate', authenticateToken, async (req, res) => {
         "type": "${type}"
     }
 
-        **IMPORTANT:** Return ONLY a JSON object in the exact structure below. DO NOT include explanations.
-    `;
+        *IMPORTANT:* Return ONLY a JSON object in the exact structure below. DO NOT include explanations.
+    `;
 
-    // Call AI service
-    const groqResponse = await axios.post(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        model: "moonshotai/kimi-k2-instruct",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.7,
-        max_tokens: 4000
-      },
-      {
-        headers: {
-          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-          "Content-Type": "application/json"
-        }
-      }
+    const ai = await axios.post(
+      'https://api.groq.com/openai/v1/chat/completions',
+      { model: 'moonshotai/kimi-k2-instruct', messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 4000 },
+      { headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` } }
     );
 
-    const content = groqResponse.data.choices[0].message.content;
-    console.log("Raw AI response:", content);
+    const raw = ai.data.choices[0].message.content || '{}';
+    const json = raw.replace(/```json|```/g, '').trim();
+    const trip = JSON.parse(json);
+    trip.country = country;
+    trip.type = type;
 
-    // Parse JSON response
-    const jsonString = content.replace(/```json|```/g, '').trim();
-    let tripData;
-    
-    try {
-      tripData = JSON.parse(jsonString);
-      
-      // Ensure required fields
-      tripData.country = country;
-      tripData.type = type;
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError);
-      return res.status(500).json({ 
-        message: "Failed to parse AI response",
-        error: 'AI_PARSE_ERROR'
-      });
+    if (trip.spots?.length) {
+      const { lat, lng } = trip.spots[0];
+      trip.weather = await weatherService.getThreeDayForecast(lat, lng);
     }
 
-    // Add real weather data
-    if (tripData.spots && tripData.spots.length > 0) {
-      const startLocation = tripData.spots[0];
-      try {
-        const realWeather = await weatherService.getThreeDayForecast(
-          startLocation.lat, 
-          startLocation.lng
-        );
-        tripData.weather = realWeather;
-        console.log("Added real weather data to trip");
-      } catch (weatherError) {
-        console.warn("Failed to fetch weather, using fallback:", weatherError.message);
-        tripData.weather = weatherService.getFallbackWeather();
-      }
-    }
-
-    console.log("Generated trip data for user:", req.user.userId);
-    res.json(tripData);
-
-  } catch (error) {
-    console.error("Route generation error:", error);
-    
-    if (error.response?.status === 429) {
-      return res.status(429).json({ 
-        message: "AI service rate limit exceeded. Please try again later.",
-        error: 'RATE_LIMIT_EXCEEDED'
-      });
-    }
-    
-    res.status(500).json({ 
-      message: "Failed to generate trip route",
-      error: 'GENERATION_ERROR'
-    });
+    res.json(trip);
+  } catch (err) {
+    // if parse fails or AI fails we still bubble to global error handler
+    next(err);
   }
 });
 
-// Save a generated route to user's collection
-router.post('/save', authenticateToken, async (req, res) => {
+// save trip (let model validate)
+router.post('/save', authenticateToken, async (req, res, next) => {
   try {
-    const { routeData, userRouteName, userRouteDescription } = req.body;
-    
-    // Input validation
-    if (!routeData || !userRouteName) {
-      return res.status(400).json({ 
-        message: 'Route data and name are required',
-        error: 'MISSING_ROUTE_DATA'
-      });
-    }
+    const { routeData, userRouteName, userRouteDescription = '' } = req.body || {};
+    if (!routeData || !userRouteName) return res.status(400).json({ message: 'routeData and userRouteName are required' });
 
-    // Validate route name length
-    if (userRouteName.trim().length < 3) {
-      return res.status(400).json({ 
-        message: 'Route name must be at least 3 characters long',
-        error: 'ROUTE_NAME_TOO_SHORT'
-      });
-    }
-
-    // Check for duplicate route names for this user
-    const existingRoute = await Route.findOne({ 
-      userId: req.user.userId, 
-      userRouteName: userRouteName.trim() 
-    });
-    
-    if (existingRoute) {
-      return res.status(409).json({ 
-        message: 'Route name already exists. Please choose a different name.',
-        error: 'DUPLICATE_ROUTE_NAME'
-      });
-    }
-
-    // Create new route
-    const route = new Route({
+    const route = await Route.create({
       name: routeData.name,
       description: routeData.description,
       logistics: routeData.logistics,
@@ -234,120 +138,47 @@ router.post('/save', authenticateToken, async (req, res) => {
       daily_info: routeData.daily_info || [],
       total_distance_km: routeData.total_distance_km || 0,
       userId: req.user.userId,
-      userRouteName: userRouteName.trim(),
-      userRouteDescription: userRouteDescription?.trim() || ''
+      userRouteName: String(userRouteName).trim(),
+      userRouteDescription: String(userRouteDescription).trim()
     });
 
-    await route.save();
-
-    res.status(201).json({ 
-      message: 'Route saved successfully',
-      routeId: route._id
-    });
-
-  } catch (error) {
-    console.error('Save route error:', error);
-    res.status(500).json({ 
-      message: 'Failed to save route',
-      error: 'SAVE_ERROR'
-    });
+    res.status(201).json({ message: 'ok', routeId: route._id });
+  } catch (err) {
+    next(err);
   }
 });
 
-
-// Get all saved routes for the authenticated user
-router.get('/', authenticateToken, async (req, res) => {
+// list routes
+router.get('/', authenticateToken, async (req, res, next) => {
   try {
     const routes = await Route.find({ userId: req.user.userId })
       .select('userRouteName userRouteDescription country type total_distance_km createdAt')
       .sort({ createdAt: -1 });
-
     res.json(routes);
-
-  } catch (error) {
-    console.error('Get routes error:', error);
-    res.status(500).json({ 
-      message: 'Failed to fetch routes',
-      error: 'FETCH_ERROR'
-    });
+  } catch (err) {
+    next(err);
   }
 });
 
-// Get specific route details
-router.get('/:routeId', authenticateToken, async (req, res) => {
+// get by id (no regex; rely on CastError)
+router.get('/:routeId', authenticateToken, async (req, res, next) => {
   try {
-    const { routeId } = req.params;
-    
-    // Validate ObjectId format
-    if (!routeId.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ 
-        message: 'Invalid route ID format',
-        error: 'INVALID_ROUTE_ID'
-      });
-    }
-    
-    const route = await Route.findOne({ 
-      _id: routeId, 
-      userId: req.user.userId 
-    });
-
-    if (!route) {
-      return res.status(404).json({ 
-        message: 'Route not found',
-        error: 'ROUTE_NOT_FOUND'
-      });
-    }
-
+    const route = await Route.findOne({ _id: req.params.routeId, userId: req.user.userId });
+    if (!route) return res.status(404).json({ message: 'Route not found' });
     res.json(route);
-
-  } catch (error) {
-    console.error('Get route error:', error);
-    res.status(500).json({ 
-      message: 'Failed to fetch route',
-      error: 'FETCH_ERROR'
-    });
+  } catch (err) {
+    next(err);
   }
 });
 
-// Delete a saved route
-router.delete('/:routeId', authenticateToken, async (req, res) => {
+// delete
+router.delete('/:routeId', authenticateToken, async (req, res, next) => {
   try {
-    const { routeId } = req.params;
-    
-    // Validate ObjectId format
-    if (!routeId.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ 
-        message: 'Invalid route ID format',
-        error: 'INVALID_ROUTE_ID'
-      });
-    }
-    
-    const route = await Route.findOneAndDelete({ 
-      _id: routeId, 
-      userId: req.user.userId 
-    });
-
-    if (!route) {
-      return res.status(404).json({ 
-        message: 'Route not found',
-        error: 'ROUTE_NOT_FOUND'
-      });
-    }
-
-    res.json({ 
-      message: 'Route deleted successfully',
-      deletedRoute: {
-        id: route._id,
-        name: route.userRouteName
-      }
-    });
-
-  } catch (error) {
-    console.error('Delete route error:', error);
-    res.status(500).json({ 
-      message: 'Failed to delete route',
-      error: 'DELETE_ERROR'
-    });
+    const route = await Route.findOneAndDelete({ _id: req.params.routeId, userId: req.user.userId });
+    if (!route) return res.status(404).json({ message: 'Route not found' });
+    res.json({ message: 'ok', deletedRoute: { id: route._id, name: route.userRouteName } });
+  } catch (err) {
+    next(err);
   }
 });
 

@@ -4,23 +4,26 @@ export const TRIP_TYPES = {
   CYCLING: 'cycling'
 };
 
-
 export const API_ENDPOINTS = {
   BASE_URL: 'http://localhost:5000',
+
   AUTH: {
-    LOGIN: '/login',
-    REGISTER: '/register',
-    PROTECTED: '/protected'
+    LOGIN: '/auth/login',          
+    REGISTER: '/auth/register',  
+    PROTECTED: '/auth/verify'
   },
+
   ROUTES: {
-    GENERATE: '/api/generate-route',
+    GENERATE: '/api/routes/generate', 
     SAVE: '/api/routes/save',
     GET_ALL: '/api/routes',
     GET_ONE: '/api/routes',
     DELETE: '/api/routes'
   },
-  WEATHER: '/api/weather',
-  COUNTRY_IMAGE: '/api/country-image'
+
+  // External services via server
+  WEATHER: '/api/external/weather',            
+  COUNTRY_IMAGE: '/api/external/country-image'  
 };
 
 export const ERROR_MESSAGES = {
@@ -53,4 +56,3 @@ export const MAP_CONFIG = {
   IMAGE_HEIGHT: 300,
   MARKER_BOUNDS_PADDING: [50, 50]
 };
-

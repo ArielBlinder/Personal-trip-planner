@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_ENDPOINTS } from '../utils/constants';
 
 function Register() {
   const [username, setUsername] = useState('');
@@ -10,7 +11,7 @@ function Register() {
 
   // Create a new user account via the API and navigate to login on success
   const handleRegister = async () => {
-    const res = await fetch('http://localhost:5000/register', {
+    const res = await fetch(`${API_ENDPOINTS.BASE_URL}${API_ENDPOINTS.AUTH.REGISTER}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password }),
@@ -21,14 +22,13 @@ function Register() {
       setMessage('Registered!');
       navigate('/login');
     } else {
-      setMessage(data.message);
+      setMessage(data.message || 'Registration failed');
     }
   };
 
   return (
     <div className="container">
       <h2>Register</h2>
-      {/* Basic form inputs (no client-side validation for brevity) */}
       <input className='input' placeholder="Username" onChange={e => setUsername(e.target.value)} />
       <br />
       <input className='input' placeholder="Email" onChange={e => setEmail(e.target.value)} />
