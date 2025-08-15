@@ -64,7 +64,15 @@ router.post('/logout', authenticateToken, (_req, res) => res.json({ message: 'ok
 
 // verify
 router.get('/verify', authenticateToken, (req, res) => {
-  res.json({ message: 'ok', user: req.user });
+  res.json({
+    message: `Hello ${req.user.username}! Welcome back, what would you like to do?`,
+    user: {
+      id: req.user.userId,
+      username: req.user.username,
+      email: req.user.email
+    },
+    timestamp: new Date().toISOString()
+  });
 });
 
 module.exports = router;
