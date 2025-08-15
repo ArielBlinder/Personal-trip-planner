@@ -19,8 +19,6 @@ const WeatherDisplay = ({ weatherData, isLoading }) => {
           <h4 className="weather-title">
             🌤️ Weather Forecast for the next 3 days
           </h4>
-          
-          {/* Show loading state while fetching weather */}
           {!isLoading && weatherData && weatherData.length > 0 && (
             <div>
               {weatherData.map((day, index) => (

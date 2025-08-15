@@ -21,7 +21,6 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
       const response = await routeAPI.saveRoute(tripData, routeName.trim(), routeDescription.trim());
       onSaveSuccess && onSaveSuccess(response.routeId);
       onClose();
-      // Reset form
       setRouteName('');
       setRouteDescription('');
     } catch (error) {
@@ -38,7 +37,7 @@ function SaveRouteModal({ isOpen, onClose, tripData, onSaveSuccess }) {
     onClose();
   };
 
-  if (!isOpen) return null; // Do not render when closed
+  if (!isOpen) return null; 
 
   return (
     <div className="modal-overlay">

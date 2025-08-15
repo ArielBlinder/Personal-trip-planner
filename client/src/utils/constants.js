@@ -8,14 +8,13 @@ export const API_ENDPOINTS = {
   BASE_URL: 'http://localhost:5000',
 
   AUTH: {
-    LOGIN: '/auth/login',          // was '/login'
-    REGISTER: '/auth/register',    // was '/register'
+    LOGIN: '/auth/login',          
+    REGISTER: '/auth/register',  
     PROTECTED: '/auth/verify'
-    // If you prefer: use '/auth/profile' or '/auth/verify' and adjust api.js accordingly
   },
 
   ROUTES: {
-    GENERATE: '/api/routes/generate', // was '/api/generate-route'
+    GENERATE: '/api/routes/generate', 
     SAVE: '/api/routes/save',
     GET_ALL: '/api/routes',
     GET_ONE: '/api/routes',
@@ -23,8 +22,8 @@ export const API_ENDPOINTS = {
   },
 
   // External services via server
-  WEATHER: '/api/external/weather',             // was '/api/weather'
-  COUNTRY_IMAGE: '/api/external/country-image'  // was '/api/country-image'
+  WEATHER: '/api/external/weather',            
+  COUNTRY_IMAGE: '/api/external/country-image'  
 };
 
 export const ERROR_MESSAGES = {
