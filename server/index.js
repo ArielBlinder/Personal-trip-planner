@@ -16,7 +16,7 @@ const externalRoutes = require('./routes/external');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Core middleware (simple & functional)
+// Core middleware
 app.use(cors({ origin: process.env.CLIENT_URL || true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,21 +24,6 @@ app.use(express.urlencoded({ extended: true }));
 // Health
 app.get('/health', (_req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
-});
-
-
-
-// Optional: lightweight API index (safe to remove if unused)
-app.get('/api', (_req, res) => {
-  res.json({
-    message: 'Personal Trip Planner API',
-    version: '1.0.0',
-    routes: {
-      auth: ['/auth/register', '/auth/login', '/auth/profile', '/auth/verify', '/auth/logout'],
-      trips: ['/api/routes/generate', '/api/routes/save', 'GET /api/routes', 'GET /api/routes/:id', 'DELETE /api/routes/:id'],
-      external: ['GET /api/external/weather?lat&lng', 'GET /api/external/country-image?country']
-    }
-  });
 });
 
 // Canonical routers

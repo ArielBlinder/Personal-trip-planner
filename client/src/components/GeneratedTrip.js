@@ -9,7 +9,7 @@ import { MAP_CONFIG } from '../utils/constants';
 import polyline from '@mapbox/polyline';
 
 
-// Fix for default markers in React Leaflet
+// default markers in React Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),

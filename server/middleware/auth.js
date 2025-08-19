@@ -85,7 +85,7 @@ const optionalAuth = (req, res, next) => {
 const generateToken = (user) => {
   const payload = {
     userId: user._id,
-    email: user.email,
+ 
     username: user.username
   };
 

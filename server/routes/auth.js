@@ -13,7 +13,7 @@ router.post('/register', async (req, res, next) => {
 
     const existing = await User.findOne({ email: String(email).trim().toLowerCase() });
     if (existing) return res.status(409).json({ message: 'Email already registered' });
-
+    // hash password with bcrypt and 10 salt rounds 
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({
       username: String(username).trim(),
@@ -40,7 +40,7 @@ router.post('/login', async (req, res, next) => {
 
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(401).json({ message: 'Invalid email or password' });
-
+    
     const token = generateToken(user);
     res.json({ message: 'ok', token, user: { id: user._id, username: user.username, email: user.email } });
   } catch (err) {
